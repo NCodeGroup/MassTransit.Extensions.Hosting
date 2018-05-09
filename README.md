@@ -37,6 +37,94 @@ Also the `MassTransit.Host` is not usable in other hosting environments such as 
 ## Proposed Solution
 This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_ for building MassTransit applications. Other than using the hosting and dependency injection abstractions, this library makes no assumptions on DI containers, logging providers, configuration providers, and the hosting environment.
 
+## Extension Methods
+```csharp
+// Multiple variations of these method signatures are provided
+
+public static IServiceCollection AddMassTransit(
+    this IServiceCollection services,
+    Action<IMassTransitBuilder> configurator);
+
+public static void UseInMemory(
+    this IMassTransitBuilder builder,
+    Uri baseAddress,
+    string connectionName,
+    Action<IInMemoryHostBuilder> hostConfigurator);
+
+public static void UseRabbitMq(
+    this IMassTransitBuilder builder,
+    string host,
+    ushort port,
+    string virtualHost,
+    string connectionName,
+    Action<IRabbitMqHostBuilder> hostConfigurator)
+
+// The various host builder interfaces then have even more extension methods such as:
+
+public static void AddReceiveEndpoint<THost, TBusFactory>(
+    this IBusHostBuilder<THost, TBusFactory> builder,
+    string queueName,
+    Action<IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator>> endpointConfigurator)
+
+public static void AddConsumer<TConsumer>(
+    this IReceiveEndpointBuilder builder,
+    Action<IConsumerConfigurator<TConsumer>, IServiceProvider> consumerConfigurator);
+
+// Additional configurators can be added to the builders by using:
+
+public interface IBusHostBuilder<out THost, out TBusFactory> : IBusHostFactory
+    where THost : class, IHost
+    where TBusFactory : class, IBusFactoryConfigurator
+{
+    void AddConfigurator(Action<THost, TBusFactory, IServiceProvider> busFactoryConfigurator);
+}
+// public interface IInMemoryHostBuilder : IBusHostBuilder<IInMemoryHost, IInMemoryBusFactoryConfigurator> {}
+// public interface IRabbitMqHostBuilder : IBusHostBuilder<IRabbitMqHost, IRabbitMqBusFactoryConfigurator> {}
+
+public interface IReceiveEndpointBuilder<out THost, out TEndpoint> : IReceiveEndpointBuilder
+    where THost : class, IHost
+    where TEndpoint : class, IReceiveEndpointConfigurator
+{
+    void AddConfigurator(Action<THost, TEndpoint, IServiceProvider> endpointConfigurator);
+}
+// public interface IInMemoryReceiveEndpointBuilder : IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator> {}
+// public interface IRabbitMqReceiveEndpointBuilder : IReceiveEndpointBuilder<IRabbitMqHost, IRabbitMqReceiveEndpointConfigurator> {}
+
+```
+
+## Basic Usage
+```csharp
+using MassTransit.Extensions.Hosting;
+using MassTransit.Extensions.Hosting.RabbitMq;
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMassTransit(busBuilder =>
+    {
+        busBuilder.UseRabbitMq(/* ... configurators ... */);
+
+        busBuilder.UseInMemory(/* ... configurators ... */);
+    });
+}
+
+public Task Run(IServiceProvider serviceProvider)
+{
+    var busManager = serviceProvider.GetRequiredService<IBusManager>();
+
+    // start all bus instances
+    busManager.StartAsync();
+
+    // get a reference to a named bus instance
+    IBus bus = busManager.GetBus("connection-name-1");
+    bus.Publish(/* ... */);
+
+    //...
+
+    // stop all bus instances
+    busManager.StopAsync();
+}
+```
+
 ## Example Console Host
 ```csharp
 public static class Program
@@ -232,3 +320,8 @@ public static class Program
     }
 }
 ```
+
+## Feedback
+Please provide any feedback, comments, or issues to this GitHub project [here][issues].
+
+[issues]: https://github.com/NCodeGroup/MassTransit.Extensions.Hosting/issues
