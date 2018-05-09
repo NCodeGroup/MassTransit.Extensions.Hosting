@@ -10,7 +10,7 @@
 
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
-    <Version>$(AssemblyVersion)-develop</Version>
+    <Version>$(AssemblyVersion)</Version>
 
     <Description>.NET Core hosting and startup infrastructure for MassTransist using IHostedService.</Description>
     <PackageTags>MassTransit;IHostedService;Bus;Hosting</PackageTags>
