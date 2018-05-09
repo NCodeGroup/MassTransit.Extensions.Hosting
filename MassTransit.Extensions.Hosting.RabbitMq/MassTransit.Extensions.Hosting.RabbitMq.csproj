@@ -8,8 +8,11 @@
         <PackageReference Include="NCode.ProjectSettings.Scaffold" Version="1.0.5">
             <PrivateAssets>All</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.0.3" />
-        <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="5.0.2" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="5.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MassTransit.Extensions.Hosting\MassTransit.Extensions.Hosting.csproj" />
     </ItemGroup>
 
 </Project>

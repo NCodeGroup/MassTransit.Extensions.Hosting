@@ -1,0 +1,188 @@
+using System;
+using System.Diagnostics;
+using GreenPipes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace MassTransit.Extensions.Hosting
+{
+    /// <summary>
+    /// Provides extension methods for <see cref="IBusHostBuilder{THost,TBusFactory}"/>.
+    /// </summary>
+    public static class BusHostBuilderExtensions
+    {
+        /// <summary>
+        /// Adds <see cref="IHostAccessor{THost}"/> to the services container
+        /// so that <see cref="IHost"/> may be retrieved after startup.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        public static void UseHostAccessor<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            var hostAccessor = new HostAccessor<THost>
+            {
+                ConnectionName = builder.ConnectionName,
+            };
+
+            builder.Services.AddSingleton<IHostAccessor<THost>>(hostAccessor);
+            builder.Services.TryAddTransient<IHostAccessor, HostAccessor>();
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                hostAccessor.Host = host;
+            });
+        }
+
+        /// <summary>
+        /// Creates a scope which is used by all downstream filters/consumers/etc.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        public static void UseServiceScope<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                busFactory.UseServiceScope(serviceProvider);
+            });
+        }
+
+        /// <summary>
+        /// Assigns <see cref="P:Trace.CorrelationManager.ActivityId"/> from the CorrelationId on the <see cref="ConsumeContext"/>.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        public static void UseCorrelationManager<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            UseCorrelationManager(builder, context => context.CorrelationId ?? NewId.NextGuid());
+        }
+
+        /// <summary>
+        /// Assigns <see cref="P:Trace.CorrelationManager.ActivityId"/> from the CorrelationId on the <see cref="ConsumeContext"/>.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="correlationIdAccessor">The callback used to return the <c>CorrelationId</c> from <see cref="ConsumeContext"/>.</param>
+        public static void UseCorrelationManager<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Func<ConsumeContext, Guid> correlationIdAccessor)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (correlationIdAccessor == null)
+                throw new ArgumentNullException(nameof(correlationIdAccessor));
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                busFactory.UseExecute(context =>
+                {
+                    var correlationId = correlationIdAccessor(context);
+                    Trace.CorrelationManager.ActivityId = correlationId;
+                });
+            });
+        }
+
+        /// <summary>
+        /// Adds a configuration callback to the builder that is used to configure the Bus.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
+        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Action<TBusFactory, IServiceProvider> busFactoryConfigurator)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (busFactoryConfigurator == null)
+                throw new ArgumentNullException(nameof(busFactoryConfigurator));
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) => busFactoryConfigurator(busFactory, serviceProvider));
+        }
+
+        /// <summary>
+        /// Adds a configuration callback to the builder that is used to configure the Bus.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
+        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Action<IHost, TBusFactory> busFactoryConfigurator)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (busFactoryConfigurator == null)
+                throw new ArgumentNullException(nameof(busFactoryConfigurator));
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) => busFactoryConfigurator(host, busFactory));
+        }
+
+        /// <summary>
+        /// Adds a configuration callback to the builder that is used to configure the Bus.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
+        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Action<TBusFactory> busFactoryConfigurator)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (busFactoryConfigurator == null)
+                throw new ArgumentNullException(nameof(busFactoryConfigurator));
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) => busFactoryConfigurator(busFactory));
+        }
+
+        /// <summary>
+        /// Adds a configuration callback to the builder that is used to configure
+        /// a receiving endpoint for the Bus with the specified queue name.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="queueName">The queue name for the receiving endpoint.</param>
+        /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
+        public static void AddReceiveEndpoint<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, string queueName, Action<IReceiveEndpointBuilder> endpointConfigurator)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            AddReceiveEndpoint(builder, queueName,
+                (IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator> endpointBuilder)
+                    => endpointConfigurator?.Invoke(endpointBuilder));
+        }
+
+        /// <summary>
+        /// Adds a configuration callback to the builder that is used to configure
+        /// a receiving endpoint for the Bus with the specified queue name.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="queueName">The queue name for the receiving endpoint.</param>
+        /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
+        public static void AddReceiveEndpoint<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, string queueName, Action<IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator>> endpointConfigurator)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (queueName == null)
+                throw new ArgumentNullException(nameof(queueName));
+
+            var endpointBuilder = new ReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator>(builder.Services);
+            endpointConfigurator?.Invoke(endpointBuilder);
+
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                busFactory.ReceiveEndpoint(queueName, endpoint =>
+                {
+                    endpointBuilder.Configure(host, endpoint, serviceProvider);
+                });
+            });
+        }
+
+    }
+}

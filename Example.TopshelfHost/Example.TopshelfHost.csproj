@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net461</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="appsettings.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="5.0.2" />
+        <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="5.0.2" />
+        <PackageReference Include="MassTransit.Extensions.Logging" Version="5.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="2.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.2" />
+        <PackageReference Include="NLog.Config" Version="4.5.4" />
+        <PackageReference Include="NLog.Extensions.Logging" Version="1.0.1" />
+        <PackageReference Include="Topshelf" Version="4.0.4" />
+        <PackageReference Include="Topshelf.NLog" Version="4.0.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MassTransit.Extensions.Hosting.RabbitMq\MassTransit.Extensions.Hosting.RabbitMq.csproj" />
+        <ProjectReference Include="..\MassTransit.Extensions.Hosting\MassTransit.Extensions.Hosting.csproj" />
+    </ItemGroup>
+
+</Project>
