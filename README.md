@@ -20,7 +20,7 @@ This library was designed to make no assumptions how to configure MassTransit bu
   * Provides extensions specific to the RabbitMq transport
 
 ## Problem Statement
-The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is also used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
+The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
 
 * Autofac as the DI container
   * No ability to modify the registrations in ContainerBuilder
@@ -37,82 +37,100 @@ Also the `MassTransit.Host` is not usable in other hosting environments such as 
 ## Proposed Solution
 This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_ for building MassTransit applications. Other than using the hosting and dependency injection abstractions, this library makes no assumptions on DI containers, logging providers, configuration providers, and the hosting environment.
 
-## Extensions
+## Usage
+
+### Step 1) Add NuGet Package(s)
+> PM> Install-Package MassTransit.Extensions.Hosting
+> 
+> PM> Install-Package MassTransit.Extensions.Hosting.RabbitMq
+
+### Step 2) Add MassTransit Services
 ```csharp
-// Multiple variations of these method signatures are provided
-
-public static IServiceCollection AddMassTransit(
-    this IServiceCollection services,
-    Action<IMassTransitBuilder> configurator);
-
-public static void UseInMemory(
-    this IMassTransitBuilder builder,
-    Uri baseAddress,
-    string connectionName,
-    Action<IInMemoryHostBuilder> hostConfigurator);
-
-public static void UseRabbitMq(
-    this IMassTransitBuilder builder,
-    string host,
-    ushort port,
-    string virtualHost,
-    string connectionName,
-    Action<IRabbitMqHostBuilder> hostConfigurator)
-
-// The various host builder interfaces then have even more extension methods such as:
-
-public static void AddReceiveEndpoint<THost, TBusFactory>(
-    this IBusHostBuilder<THost, TBusFactory> builder,
-    string queueName,
-    Action<IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator>> endpointConfigurator)
-
-public static void AddConsumer<TConsumer>(
-    this IReceiveEndpointBuilder builder,
-    Action<IConsumerConfigurator<TConsumer>, IServiceProvider> consumerConfigurator);
-
-// Additional configurators can be added to the builders by using:
-
-public interface IBusHostBuilder<out THost, out TBusFactory> : IBusHostFactory
-    where THost : class, IHost
-    where TBusFactory : class, IBusFactoryConfigurator
-{
-    void AddConfigurator(Action<THost, TBusFactory, IServiceProvider> busFactoryConfigurator);
-}
-// public interface IInMemoryHostBuilder : IBusHostBuilder<IInMemoryHost, IInMemoryBusFactoryConfigurator> {}
-// public interface IRabbitMqHostBuilder : IBusHostBuilder<IRabbitMqHost, IRabbitMqBusFactoryConfigurator> {}
-
-public interface IReceiveEndpointBuilder<out THost, out TEndpoint> : IReceiveEndpointBuilder
-    where THost : class, IHost
-    where TEndpoint : class, IReceiveEndpointConfigurator
-{
-    void AddConfigurator(Action<THost, TEndpoint, IServiceProvider> endpointConfigurator);
-}
-// public interface IInMemoryReceiveEndpointBuilder : IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator> {}
-// public interface IRabbitMqReceiveEndpointBuilder : IReceiveEndpointBuilder<IRabbitMqHost, IRabbitMqReceiveEndpointConfigurator> {}
-
-// Finally IBusManager can be used to start/stop and retrieve bus instances:
-public interface IBusManager : IHostedService
-{
-    IBus GetBus(string connectionName);
-}
-
-```
-
-## Basic Usage
-```csharp
-using MassTransit.Extensions.Hosting;
-using MassTransit.Extensions.Hosting.RabbitMq;
-
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddMassTransit(busBuilder =>
     {
-        busBuilder.UseRabbitMq(/* ... configurators ... */);
-
-        busBuilder.UseInMemory(/* ... configurators ... */);
+        // ...
     });
 }
+```
 
+### Step 3) Configure Bus Transports
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMassTransit(busBuilder =>
+    {
+        busBuilder.UseInMemory("connection-name-1", hostBuilder => 
+        {
+            hostBuilder.UseServiceScope();
+
+            hostBuilder.AddConfigurator(configureBus =>
+            {
+                configureBus.UseRetry(r => r.Immediate(3));
+            });
+
+            // ...
+        });
+
+        busBuilder.UseRabbitMq("connection-name-2", hostBuilder => 
+        {
+            // ...
+        });
+    });
+}
+```
+
+### Step 4) Configure Receive Endpoints
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMassTransit(busBuilder =>
+    {
+        busBuilder.UseInMemory("connection-name-1", hostBuilder => 
+        {
+            // ...
+
+            hostBuilder.AddReceiveEndpoint("example-queue-1", endpointBuilder =>
+            {
+                endpointBuilder.AddConfigurator(configureEndpoint =>
+                {
+                    configureEndpoint.UseRetry(r => r.Immediate(3));
+                });
+
+                // ...
+            });
+        });
+    });
+}
+```
+
+### Step 5) Configure Consumers
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMassTransit(busBuilder =>
+    {
+        busBuilder.UseInMemory("connection-name-1", hostBuilder => 
+        {
+            // ...
+
+            hostBuilder.AddReceiveEndpoint("example-queue-1", endpointBuilder =>
+            {
+                endpointBuilder.AddConsumer<ExampleConsumer>(configureConsumer =>
+                {
+                    configureConsumer.UseRateLimit(10);
+
+                    // ...
+                });
+            });
+        });
+    });
+}
+```
+
+### Step 6) Bus Manager
+```csharp
 public Task Run(IServiceProvider serviceProvider)
 {
     var busManager = serviceProvider.GetRequiredService<IBusManager>();
@@ -124,7 +142,7 @@ public Task Run(IServiceProvider serviceProvider)
     IBus bus = busManager.GetBus("connection-name-1");
     bus.Publish(/* ... */);
 
-    //...
+    // ...
 
     // stop all bus instances
     busManager.StopAsync();
@@ -203,7 +221,7 @@ public static class Program
             });
 
             // adding more bus instances...
-            busBuilder.UseInMemory("optional-connection-name-2", hostBuilder =>
+            busBuilder.UseInMemory("connection-name-2", hostBuilder =>
             {
                 hostBuilder.UseServiceScope();
                 hostBuilder.AddReceiveEndpoint("example-queue-2", endpointBuilder =>

@@ -13,7 +13,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <summary>
         /// Gets or sets the client-provided connection name.
         /// </summary>
-        public string ConnectionName { get; set; }
+        public string ConnectionName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the RabbitMq host to connect to (should be a valid hostname).

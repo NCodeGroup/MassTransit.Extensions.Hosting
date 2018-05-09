@@ -73,9 +73,9 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// Initializes a new instance of the <see cref="RabbitMqHostBuilder"/> class.
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/></param>
-        /// <param name="hostAddress">The URI host address of the RabbitMQ host (example: rabbitmq://host:port/vhost).</param>
         /// <param name="connectionName">The client-provided connection name.</param>
-        public RabbitMqHostBuilder(IServiceCollection services, Uri hostAddress, string connectionName)
+        /// <param name="hostAddress">The URI host address of the RabbitMQ host (example: rabbitmq://host:port/vhost).</param>
+        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, Uri hostAddress)
             : base(services, connectionName)
         {
             if (hostAddress == null)
@@ -88,11 +88,11 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// Initializes a new instance of the <see cref="RabbitMqHostBuilder"/> class.
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/></param>
+        /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="host">The host name of the RabbitMq broker.</param>
         /// <param name="port">The port to connect to on the RabbitMq broker.</param>
         /// <param name="virtualHost">The virtual host to use.</param>
-        /// <param name="connectionName">The client-provided connection name.</param>
-        public RabbitMqHostBuilder(IServiceCollection services, string host, ushort port, string virtualHost, string connectionName)
+        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, string host, ushort port, string virtualHost)
             : base(services, connectionName)
         {
             if (host == null)

@@ -73,13 +73,13 @@ namespace Example.ConsoleHost
                         {
                             // example adding an optional configurator to the consumer
                             // using IConsumerConfigurator<TConsumer>
-                            configureConsumer.UseRetry(r => r.Immediate(3));
+                            configureConsumer.UseRateLimit(10);
                         });
                     });
                 });
 
                 // adding more bus instances...
-                busBuilder.UseInMemory("optional-connection-name-2", hostBuilder =>
+                busBuilder.UseInMemory("connection-name-2", hostBuilder =>
                 {
                     hostBuilder.UseServiceScope();
                     hostBuilder.AddReceiveEndpoint("example-queue-2", endpointBuilder =>

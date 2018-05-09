@@ -20,7 +20,7 @@ namespace Example.ConsoleHost
 
         public virtual void DoSomething()
         {
-            var bus = _busManager.GetBus("optional-connection-name-1");
+            var bus = _busManager.GetBus("connection-name-1");
 
             bus.Publish<IExampleMessage>(new
             {

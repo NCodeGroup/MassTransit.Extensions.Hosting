@@ -25,9 +25,9 @@ namespace MassTransit.Extensions.Hosting
         /// Initializes a new instance of the <see cref="InMemoryHostBuilder"/> class.
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/></param>
-        /// <param name="baseAddress">Contains an optional override for the default base address.</param>
         /// <param name="connectionName">The client-provided connection name.</param>
-        public InMemoryHostBuilder(IServiceCollection services, Uri baseAddress, string connectionName)
+        /// <param name="baseAddress">Contains an optional override for the default base address.</param>
+        public InMemoryHostBuilder(IServiceCollection services, string connectionName, Uri baseAddress)
             : base(services, connectionName)
         {
             _baseAddress = baseAddress;
