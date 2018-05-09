@@ -37,7 +37,7 @@ Also the `MassTransit.Host` is not usable in other hosting environments such as 
 ## Proposed Solution
 This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_ for building MassTransit applications. Other than using the hosting and dependency injection abstractions, this library makes no assumptions on DI containers, logging providers, configuration providers, and the hosting environment.
 
-## Extension Methods
+## Extensions
 ```csharp
 // Multiple variations of these method signatures are provided
 
@@ -89,6 +89,12 @@ public interface IReceiveEndpointBuilder<out THost, out TEndpoint> : IReceiveEnd
 }
 // public interface IInMemoryReceiveEndpointBuilder : IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator> {}
 // public interface IRabbitMqReceiveEndpointBuilder : IReceiveEndpointBuilder<IRabbitMqHost, IRabbitMqReceiveEndpointConfigurator> {}
+
+// Finally IBusManager can be used to start/stop and retrieve bus instances:
+public interface IBusManager : IHostedService
+{
+    IBus GetBus(string connectionName);
+}
 
 ```
 
