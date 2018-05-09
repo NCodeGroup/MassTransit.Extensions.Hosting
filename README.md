@@ -73,8 +73,10 @@ public void ConfigureServices(IServiceCollection services)
             // ...
         });
 
-        busBuilder.UseRabbitMq("connection-name-2", hostBuilder => 
+        busBuilder.UseRabbitMq("connection-name-2", "127.0.0.1", "/vhost", hostBuilder => 
         {
+            hostBuilder.UseCredentials("guest", "guest");
+
             // ...
         });
     });

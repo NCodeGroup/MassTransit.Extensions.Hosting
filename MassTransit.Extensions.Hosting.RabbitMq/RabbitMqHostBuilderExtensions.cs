@@ -8,6 +8,23 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
     public static class RabbitMqHostBuilderExtensions
     {
         /// <summary>
+        /// Sets the username and password for the connection to RabbitMq.
+        /// </summary>
+        /// <param name="builder"><see cref="IRabbitMqHostBuilder"/></param>
+        /// <param name="username">Contains the username.</param>
+        /// <param name="password">Contains the password.</param>
+        public static IRabbitMqHostBuilder UseCredentials(this IRabbitMqHostBuilder builder, string username, string password)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            builder.UseUsername(username);
+            builder.UsePassword(password);
+
+            return builder;
+        }
+
+        /// <summary>
         /// Adds a configuration callback to the builder that is used to configure
         /// a receiving endpoint for the Bus with the specified queue name.
         /// </summary>
