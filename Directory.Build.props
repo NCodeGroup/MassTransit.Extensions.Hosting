@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+
+    <NCodeClsCompliant>False</NCodeClsCompliant>
+
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
+
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
+
+    <PackageProjectUrl>https://github.com/NCodeGroup/MassTransit.Extensions.Hosting.git</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/NCodeGroup/MassTransit.Extensions.Hosting/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/NCodeGroup/MassTransit.Extensions.Hosting/master/NCodeGroup.png</PackageIconUrl>
+
+  </PropertyGroup>
+</Project>
