@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace MassTransit.Extensions.Hosting
 {
@@ -32,14 +33,16 @@ namespace MassTransit.Extensions.Hosting
 
         private readonly IServiceProvider _serviceProvider;
         private readonly IEnumerable<IBusHostFactory> _busHostFactoryList;
+        private readonly ILogger<BusManager> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BusManager"/> class.
         /// </summary>
-        public BusManager(IServiceProvider serviceProvider, IEnumerable<IBusHostFactory> busHostFactoryList)
+        public BusManager(IServiceProvider serviceProvider, IEnumerable<IBusHostFactory> busHostFactoryList, ILogger<BusManager> logger)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _busHostFactoryList = busHostFactoryList ?? throw new ArgumentNullException(nameof(busHostFactoryList));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc />
@@ -62,13 +65,25 @@ namespace MassTransit.Extensions.Hosting
         /// <inheritdoc />
         public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("Bus manager starting");
+
             await ExecuteAsync(bus => bus.StartAsync(cancellationToken)).ConfigureAwait(false);
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("Bus manager started");
         }
 
         /// <inheritdoc />
         public virtual async Task StopAsync(CancellationToken cancellationToken)
         {
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("Bus manager stopping");
+
             await ExecuteAsync(bus => bus.StopAsync(cancellationToken)).ConfigureAwait(false);
+
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("Bus manager stopped");
         }
 
         private async Task ExecuteAsync(Func<IBusControl, Task> action)

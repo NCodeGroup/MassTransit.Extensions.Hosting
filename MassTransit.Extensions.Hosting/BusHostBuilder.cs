@@ -81,18 +81,6 @@ namespace MassTransit.Extensions.Hosting
         }
 
         /// <summary>
-        /// Adds a configuration callback to the builder that is used to configure the Bus.
-        /// </summary>
-        /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
-        public virtual void AddConfigurator(Action<IHost, IBusFactoryConfigurator, IServiceProvider> busFactoryConfigurator)
-        {
-            if (busFactoryConfigurator == null)
-                throw new ArgumentNullException(nameof(busFactoryConfigurator));
-
-            _configuratorActions.Add(busFactoryConfigurator);
-        }
-
-        /// <summary>
         /// Used to invoke all the configuration callbacks when configuring a bus instance.
         /// </summary>
         /// <param name="host"><see cref="IHost"/></param>

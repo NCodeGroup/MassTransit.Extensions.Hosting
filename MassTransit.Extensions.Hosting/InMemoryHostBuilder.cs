@@ -1,6 +1,7 @@
 using System;
 using MassTransit.Transports.InMemory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MassTransit.Extensions.Hosting
 {
@@ -39,10 +40,19 @@ namespace MassTransit.Extensions.Hosting
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 
+            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+            var logger = loggerFactory?.CreateLogger<InMemoryHostBuilder>();
+            var loggerIsEnabled = logger?.IsEnabled(LogLevel.Debug) ?? false;
+            if (loggerIsEnabled)
+                logger.LogDebug("Creating InMemory Bus '{0}'", ConnectionName);
+
             var busControl = Bus.Factory.CreateUsingInMemory(_baseAddress, busFactory =>
             {
                 Configure(busFactory.Host, busFactory, serviceProvider);
             });
+
+            if (loggerIsEnabled)
+                logger.LogDebug("Created InMemory Bus '{0}'", ConnectionName);
 
             return busControl;
         }

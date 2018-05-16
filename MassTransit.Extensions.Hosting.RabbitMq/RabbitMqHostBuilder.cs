@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MassTransit.RabbitMqTransport;
 using MassTransit.RabbitMqTransport.Configurators;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MassTransit.Extensions.Hosting.RabbitMq
 {
@@ -151,12 +152,21 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
 
+            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+            var logger = loggerFactory?.CreateLogger<RabbitMqHostBuilder>();
+            var loggerIsEnabled = logger?.IsEnabled(LogLevel.Debug) ?? false;
+            if (loggerIsEnabled)
+                logger.LogDebug("Creating RabbitMq Bus '{0}'", ConnectionName);
+
             var busControl = Bus.Factory.CreateUsingRabbitMq(busFactory =>
             {
                 var host = busFactory.Host(_hostConfigurator.Settings);
 
                 Configure(host, busFactory, serviceProvider);
             });
+
+            if (loggerIsEnabled)
+                logger.LogDebug("Created RabbitMq Bus '{0}'", ConnectionName);
 
             return busControl;
         }
