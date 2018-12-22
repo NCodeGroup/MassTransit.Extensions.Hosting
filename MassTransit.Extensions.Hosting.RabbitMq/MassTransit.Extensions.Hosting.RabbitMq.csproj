@@ -8,7 +8,7 @@
         <PackageReference Include="NCode.ProjectSettings.Scaffold" Version="1.0.5">
             <PrivateAssets>All</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="MassTransit.RabbitMQ" Version="5.0.2" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="5.1.5" />
     </ItemGroup>
 
     <ItemGroup>
