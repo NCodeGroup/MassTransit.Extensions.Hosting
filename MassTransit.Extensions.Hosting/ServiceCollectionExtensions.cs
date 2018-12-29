@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using MassTransit.Scoping;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,12 @@ namespace MassTransit.Extensions.Hosting
             var builder = new MassTransitBuilder(services);
             configurator(builder);
 
-            services.TryAddSingleton<IBusManager, BusManager>();
-            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<IBusManager>());
+            var busManagerDescriptor = ServiceDescriptor.Singleton<IBusManager, BusManager>();
+            if (services.All(item => item.ServiceType != busManagerDescriptor.ServiceType))
+            {
+                services.Add(busManagerDescriptor);
+                services.AddSingleton<IHostedService>(serviceProvider => serviceProvider.GetRequiredService<IBusManager>());
+            }
 
             services.TryAddTransient<IConsumerScopeProvider, DependencyInjectionConsumerScopeProvider>();
             services.TryAdd(ServiceDescriptor.Transient(typeof(IConsumerFactory<>), typeof(ScopeConsumerFactory<>)));
