@@ -9,7 +9,7 @@ environment:
   configuration: $(configuration)
 
 init:
-- cmd: msbuild /version
+- cmd: msbuild /version /nologo
 - cmd: dotnet --version
 
 before_build:
