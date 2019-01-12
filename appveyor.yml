@@ -3,7 +3,7 @@ configuration: Release
 platform: Any CPU
 
 before_build:
-- cmd: ECHO configuration=$(configuration)
+- cmd: ECHO configuration=%configuration%
 - cmd: dotnet --version
 - cmd: dotnet restore
 
