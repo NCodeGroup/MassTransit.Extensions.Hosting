@@ -6,6 +6,10 @@
 [Generic Host]: https://github.com/aspnet/Hosting/issues/1163
 
 # Overview
+[![Build Status](https://ci.appveyor.com/api/projects/status/v57og3d9wbj2jgy9/branch/master?svg=true)](https://ci.appveyor.com/project/polewskm/masstransit-extensions-hosting/branch/master)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/MassTransit.Extensions.Hosting.svg?style=flat)](https://www.nuget.org/packages/MassTransit.Extensions.Hosting/)
+[![NuGet Version](https://img.shields.io/nuget/v/MassTransit.Extensions.Hosting.svg?style=flat)](https://www.nuget.org/packages/MassTransit.Extensions.Hosting/)
+
 This library provides extensions for [MassTransit] to support:
 * Hosting with [Microsoft.Extensions.Hosting]
 * Dependency Injection with [Microsoft.Extensions.DependencyInjection]
