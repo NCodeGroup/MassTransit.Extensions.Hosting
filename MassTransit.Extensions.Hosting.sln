@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
 		COPYRIGHT.txt = COPYRIGHT.txt
 		Directory.Build.props = Directory.Build.props
 		LICENSE.txt = LICENSE.txt
@@ -24,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.TopshelfHost", "Exa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Hosting.Tests", "MassTransit.Extensions.Hosting.Tests\MassTransit.Extensions.Hosting.Tests.csproj", "{0AED767E-D526-4273-A7CA-1032097D758B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.Extensions.Hosting.RabbitMq.Tests", "MassTransit.Extensions.Hosting.RabbitMq.Tests\MassTransit.Extensions.Hosting.RabbitMq.Tests.csproj", "{812A83B2-9017-4CF8-AD86-61EAA61E89CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Hosting.RabbitMq.Tests", "MassTransit.Extensions.Hosting.RabbitMq.Tests\MassTransit.Extensions.Hosting.RabbitMq.Tests.csproj", "{812A83B2-9017-4CF8-AD86-61EAA61E89CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
