@@ -7,7 +7,8 @@ cache:
 - '%LocalAppData%\NuGet\v3-cache'
 
 before_build:
-- cmd: msbuild /t:restore /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+# - cmd: msbuild /t:restore /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+- cmd: dotnet restore
 
 artifacts:
 - path: '**\MassTransit.Extensions.Hosting.*.nupkg'
