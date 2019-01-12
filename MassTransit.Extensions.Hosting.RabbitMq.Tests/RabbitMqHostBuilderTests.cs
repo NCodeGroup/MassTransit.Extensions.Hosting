@@ -71,8 +71,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             mockRabbitMqBusFactory
                 .Setup(_ => _.Create(It.IsAny<Action<IRabbitMqBusFactoryConfigurator>>()))
-                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) =>
-                    configure(mockRabbitMqBusFactoryConfigurator.Object))
+                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) => configure(mockRabbitMqBusFactoryConfigurator.Object))
                 .Returns(mockBusControl.Object)
                 .Verifiable();
 

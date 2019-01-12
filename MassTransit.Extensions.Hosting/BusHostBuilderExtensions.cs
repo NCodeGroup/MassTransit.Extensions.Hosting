@@ -50,7 +50,10 @@ namespace MassTransit.Extensions.Hosting
             builder.Services.AddSingleton<IHostAccessor<THost>>(hostAccessor);
             builder.Services.TryAddTransient<IHostAccessor, HostAccessor>();
 
-            builder.AddConfigurator((host, busFactory, serviceProvider) => { hostAccessor.Host = host; });
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                hostAccessor.Host = host;
+            });
         }
 
         /// <summary>
@@ -119,8 +122,7 @@ namespace MassTransit.Extensions.Hosting
             if (busFactoryConfigurator == null)
                 throw new ArgumentNullException(nameof(busFactoryConfigurator));
 
-            builder.AddConfigurator((host, busFactory, serviceProvider) =>
-                busFactoryConfigurator(busFactory, serviceProvider));
+            builder.AddConfigurator((host, busFactory, serviceProvider) => busFactoryConfigurator(busFactory, serviceProvider));
         }
 
         /// <summary>
