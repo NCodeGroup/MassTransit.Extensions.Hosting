@@ -6,13 +6,12 @@ environment:
   configuration: $(configuration)
 
 before_build:
-- cmd: ECHO configuration1=%configuration%
-- cmd: ECHO configuration2=$(configuration)
 - cmd: dotnet --version
 - cmd: dotnet restore
 
-build_script:
-- cmd: dotnet build --configuration Release
+build:
+  parallel: true
+  verbosity: quiet
 
 artifacts:
 - path: '**\MassTransit.Extensions.Hosting.*.nupkg'
