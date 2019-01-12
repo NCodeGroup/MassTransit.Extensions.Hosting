@@ -2,7 +2,8 @@ version: "{build}"
 shallow_clone: true
 
 branches:
-  only: master
+  only:
+  - master
 
 image: Visual Studio 2017
 configuration: Release
