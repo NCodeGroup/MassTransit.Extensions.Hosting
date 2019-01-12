@@ -12,7 +12,7 @@ before_build:
 
 build:
   parallel: true
-  verbosity: normal
+  verbosity: minimal
 
 artifacts:
 - path: '**\MassTransit.Extensions.Hosting.*.nupkg'
