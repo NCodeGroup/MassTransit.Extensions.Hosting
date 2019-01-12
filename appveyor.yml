@@ -1,3 +1,6 @@
+version: "{build}"
+shallow_clone: true
+
 image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
@@ -5,13 +8,16 @@ platform: Any CPU
 environment:
   configuration: $(configuration)
 
-before_build:
+init:
+- cmd: msbuild /version
 - cmd: dotnet --version
+
+before_build:
 - cmd: dotnet restore
 
 build:
   parallel: true
-  verbosity: quiet
+  verbosity: minimal
 
 artifacts:
 - path: '**\MassTransit.Extensions.Hosting.*.nupkg'
