@@ -19,14 +19,31 @@
 
 using System;
 
-namespace Example.TopshelfHost
+namespace MassTransit.Extensions.Hosting.Tests
 {
+    /// <summary />
     public interface IExampleMessage
     {
+        /// <summary />
         Guid CorrelationId { get; }
 
+        /// <summary />
         string StringData { get; }
 
-        DateTime DateTimeData { get; }
+        /// <summary />
+        DateTimeOffset DateTimeOffsetData { get; }
+    }
+
+    /// <summary />
+    public class ExampleMessage : IExampleMessage
+    {
+        /// <inheritdoc />
+        public Guid CorrelationId { get; set; }
+
+        /// <inheritdoc />
+        public string StringData { get; set; }
+
+        /// <inheritdoc />
+        public DateTimeOffset DateTimeOffsetData { get; set; }
     }
 }

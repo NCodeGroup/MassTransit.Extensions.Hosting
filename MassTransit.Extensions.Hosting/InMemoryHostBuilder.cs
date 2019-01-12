@@ -1,12 +1,32 @@
+#region Copyright Preamble
+
+// 
+//    Copyright @ 2019 NCode Group
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+#endregion
+
 using System;
 using MassTransit.Transports.InMemory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace MassTransit.Extensions.Hosting
 {
     /// <summary>
-    /// Provides an abstraction to configure and initialize InMemory specific Bus instances.
+    /// Provides an abstraction to configure and initialize in-memory specific Bus instances.
     /// </summary>
     public interface IInMemoryHostBuilder : IBusHostBuilder<IInMemoryHost, IInMemoryBusFactoryConfigurator>
     {
@@ -32,6 +52,9 @@ namespace MassTransit.Extensions.Hosting
             : base(services, connectionName)
         {
             _baseAddress = baseAddress;
+
+            services.TryAddTransient<IInMemoryBusFactory, InMemoryBusFactory>();
+            services.TryAddTransient<IBusFactory<IInMemoryBusFactoryConfigurator>, InMemoryBusFactory>();
         }
 
         /// <inheritdoc />
@@ -46,9 +69,10 @@ namespace MassTransit.Extensions.Hosting
             if (loggerIsEnabled)
                 logger.LogDebug("Creating InMemory Bus '{0}'", ConnectionName);
 
-            var busControl = Bus.Factory.CreateUsingInMemory(_baseAddress, busFactory =>
+            var busFactory = serviceProvider.GetRequiredService<IInMemoryBusFactory>();
+            var busControl = busFactory.Create(_baseAddress, busFactoryConfigurator =>
             {
-                Configure(busFactory.Host, busFactory, serviceProvider);
+                Configure(busFactoryConfigurator.Host, busFactoryConfigurator, serviceProvider);
             });
 
             if (loggerIsEnabled)

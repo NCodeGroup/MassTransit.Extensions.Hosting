@@ -18,15 +18,21 @@
 #endregion
 
 using System;
+using MassTransit.RabbitMqTransport;
 
-namespace Example.TopshelfHost
+namespace MassTransit.Extensions.Hosting.RabbitMq
 {
-    public interface IExampleMessage
+    /// <summary>
+    /// Provides an implementation of <see cref="IBusFactory{TConfigurator}"/>
+    /// that creates RabbitMQ bus instances using <see cref="IRabbitMqBusFactoryConfigurator"/>.
+    /// </summary>
+    public class RabbitMqBusFactory : IBusFactory<IRabbitMqBusFactoryConfigurator>
     {
-        Guid CorrelationId { get; }
+        /// <inheritdoc />
+        public virtual IBusControl Create(Action<IRabbitMqBusFactoryConfigurator> configure)
+        {
+            return Bus.Factory.CreateUsingRabbitMq(configure);
+        }
 
-        string StringData { get; }
-
-        DateTime DateTimeData { get; }
     }
 }

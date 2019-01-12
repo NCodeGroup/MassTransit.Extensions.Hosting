@@ -1,8 +1,28 @@
+#region Copyright Preamble
+
+// 
+//    Copyright @ 2019 NCode Group
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+#endregion
+
 using System;
 using System.Threading.Tasks;
 using MassTransit.RabbitMqTransport;
 using MassTransit.RabbitMqTransport.Configurators;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace MassTransit.Extensions.Hosting.RabbitMq
@@ -68,7 +88,14 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         BusHostBuilder<IRabbitMqHost, IRabbitMqBusFactoryConfigurator>,
         IRabbitMqHostBuilder
     {
-        private readonly RabbitMqHostConfigurator _hostConfigurator;
+        private readonly IRabbitMqHostConfigurator _hostConfigurator;
+        private readonly RabbitMqHostSettings _settings;
+
+        private RabbitMqHostBuilder(IServiceCollection services, string connectionName)
+            : base(services, connectionName)
+        {
+            services.TryAddTransient<IBusFactory<IRabbitMqBusFactoryConfigurator>, RabbitMqBusFactory>();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RabbitMqHostBuilder"/> class.
@@ -77,12 +104,15 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="hostAddress">The URI host address of the RabbitMQ host (example: rabbitmq://host:port/vhost).</param>
         public RabbitMqHostBuilder(IServiceCollection services, string connectionName, Uri hostAddress)
-            : base(services, connectionName)
+            : this(services, connectionName)
         {
             if (hostAddress == null)
                 throw new ArgumentNullException(nameof(hostAddress));
 
-            _hostConfigurator = new RabbitMqHostConfigurator(hostAddress, connectionName);
+            var hostConfigurator = new RabbitMqHostConfigurator(hostAddress, connectionName);
+
+            _hostConfigurator = hostConfigurator;
+            _settings = hostConfigurator.Settings;
         }
 
         /// <summary>
@@ -94,14 +124,17 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="port">The port to connect to on the RabbitMq broker.</param>
         /// <param name="virtualHost">The virtual host to use.</param>
         public RabbitMqHostBuilder(IServiceCollection services, string connectionName, string host, ushort port, string virtualHost)
-            : base(services, connectionName)
+            : this(services, connectionName)
         {
             if (host == null)
                 throw new ArgumentNullException(nameof(host));
             if (virtualHost == null)
                 throw new ArgumentNullException(nameof(virtualHost));
 
-            _hostConfigurator = new RabbitMqHostConfigurator(host, virtualHost, port, connectionName);
+            var hostConfigurator = new RabbitMqHostConfigurator(host, virtualHost, port, connectionName);
+
+            _hostConfigurator = hostConfigurator;
+            _settings = hostConfigurator.Settings;
         }
 
         /// <inheritdoc />
@@ -156,17 +189,18 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             var logger = loggerFactory?.CreateLogger<RabbitMqHostBuilder>();
             var loggerIsEnabled = logger?.IsEnabled(LogLevel.Debug) ?? false;
             if (loggerIsEnabled)
-                logger.LogDebug("Creating RabbitMq Bus '{0}'", ConnectionName);
+                logger.LogDebug("Creating RabbitMQ Bus '{0}'", ConnectionName);
 
-            var busControl = Bus.Factory.CreateUsingRabbitMq(busFactory =>
+            var busFactory = serviceProvider.GetRequiredService<IBusFactory<IRabbitMqBusFactoryConfigurator>>();
+            var busControl = busFactory.Create(busFactoryConfigurator =>
             {
-                var host = busFactory.Host(_hostConfigurator.Settings);
+                var host = busFactoryConfigurator.Host(_settings);
 
-                Configure(host, busFactory, serviceProvider);
+                Configure(host, busFactoryConfigurator, serviceProvider);
             });
 
             if (loggerIsEnabled)
-                logger.LogDebug("Created RabbitMq Bus '{0}'", ConnectionName);
+                logger.LogDebug("Created RabbitMQ Bus '{0}'", ConnectionName);
 
             return busControl;
         }
