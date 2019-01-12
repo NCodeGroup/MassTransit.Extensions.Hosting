@@ -38,8 +38,7 @@ namespace MassTransit.Extensions.Hosting
         /// <param name="services">The <see cref="IServiceCollection"/> used to configure the DI container.</param>
         /// <param name="configurator">The configuration callback to configure the Bus.</param>
         /// <returns><see cref="IServiceCollection"/></returns>
-        public static IServiceCollection AddMassTransit(this IServiceCollection services,
-            Action<IMassTransitBuilder> configurator)
+        public static IServiceCollection AddMassTransit(this IServiceCollection services, Action<IMassTransitBuilder> configurator)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -53,8 +52,7 @@ namespace MassTransit.Extensions.Hosting
             if (services.All(item => item.ServiceType != busManagerDescriptor.ServiceType))
             {
                 services.Add(busManagerDescriptor);
-                services.AddSingleton<IHostedService>(serviceProvider =>
-                    serviceProvider.GetRequiredService<IBusManager>());
+                services.AddSingleton<IHostedService>(serviceProvider => serviceProvider.GetRequiredService<IBusManager>());
             }
 
             services.TryAddTransient<IConsumerScopeProvider, DependencyInjectionConsumerScopeProvider>();
@@ -62,5 +60,6 @@ namespace MassTransit.Extensions.Hosting
 
             return services;
         }
+
     }
 }

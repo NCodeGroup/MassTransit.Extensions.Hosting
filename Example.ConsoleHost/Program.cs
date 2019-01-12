@@ -40,8 +40,7 @@ namespace Example.ConsoleHost
                 .Run();
         }
 
-        private static void ConfigureAppConfiguration(HostBuilderContext context,
-            IConfigurationBuilder configurationBuilder, string[] args)
+        private static void ConfigureAppConfiguration(HostBuilderContext context, IConfigurationBuilder configurationBuilder, string[] args)
         {
             var environmentName = context.HostingEnvironment.EnvironmentName;
 
@@ -73,7 +72,10 @@ namespace Example.ConsoleHost
 
                     // example adding an optional configurator to the bus
                     // using IRabbitMqBusFactoryConfigurator
-                    hostBuilder.AddConfigurator(configureBus => { configureBus.UseRetry(r => r.Immediate(1)); });
+                    hostBuilder.AddConfigurator(configureBus =>
+                    {
+                        configureBus.UseRetry(r => r.Immediate(1));
+                    });
 
                     // example adding a receive endpoint to the bus
                     hostBuilder.AddReceiveEndpoint("example-queue-1", endpointBuilder =>
@@ -99,10 +101,13 @@ namespace Example.ConsoleHost
                 busBuilder.UseInMemory("connection-name-2", hostBuilder =>
                 {
                     hostBuilder.UseServiceScope();
-                    hostBuilder.AddReceiveEndpoint("example-queue-2",
-                        endpointBuilder => { endpointBuilder.AddConsumer<ExampleConsumer>(); });
+                    hostBuilder.AddReceiveEndpoint("example-queue-2", endpointBuilder =>
+                    {
+                        endpointBuilder.AddConsumer<ExampleConsumer>();
+                    });
                 });
             });
         }
+
     }
 }

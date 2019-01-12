@@ -32,8 +32,7 @@ namespace MassTransit.Extensions.Hosting
         /// <param name="builder"><see cref="IMassTransitBuilder"/></param>
         /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="hostConfigurator">The configuration callback to configure the InMemory bus.</param>
-        public static void UseInMemory(this IMassTransitBuilder builder, string connectionName,
-            Action<IInMemoryHostBuilder> hostConfigurator)
+        public static void UseInMemory(this IMassTransitBuilder builder, string connectionName, Action<IInMemoryHostBuilder> hostConfigurator)
         {
             UseInMemory(builder, connectionName, null, hostConfigurator);
         }
@@ -45,8 +44,7 @@ namespace MassTransit.Extensions.Hosting
         /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="baseAddress">Contains an optional override for the default base address.</param>
         /// <param name="hostConfigurator">The configuration callback to configure the InMemory bus.</param>
-        public static void UseInMemory(this IMassTransitBuilder builder, string connectionName, Uri baseAddress,
-            Action<IInMemoryHostBuilder> hostConfigurator)
+        public static void UseInMemory(this IMassTransitBuilder builder, string connectionName, Uri baseAddress, Action<IInMemoryHostBuilder> hostConfigurator)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -54,5 +52,6 @@ namespace MassTransit.Extensions.Hosting
             var hostBuilder = new InMemoryHostBuilder(builder.Services, connectionName, baseAddress);
             hostConfigurator?.Invoke(hostBuilder);
         }
+
     }
 }

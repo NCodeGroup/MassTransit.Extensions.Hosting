@@ -23,7 +23,6 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GreenPipes;
-using MassTransit.ConsumeConfigurators;
 using MassTransit.Scoping;
 using MassTransit.Transports.InMemory;
 using Microsoft.Extensions.DependencyInjection;
@@ -104,8 +103,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                     {
                         busFactory.UseInlineFilter(async (context, next) =>
                         {
-                            var hasPayloadInline =
-                                context.TryGetPayload<IServiceProvider>(out var serviceProviderInline);
+                            var hasPayloadInline = context.TryGetPayload<IServiceProvider>(out var serviceProviderInline);
                             Assert.Equal(useServiceScope, hasPayloadInline);
                             if (useServiceScope)
                             {
@@ -120,13 +118,11 @@ namespace MassTransit.Extensions.Hosting.Tests
                             }
 
                             var consumerServiceProvider = serviceProviderInline ?? serviceProviderBuilder;
-                            var consumerScopeProvider =
-                                consumerServiceProvider.GetRequiredService<IConsumerScopeProvider>();
+                            var consumerScopeProvider = consumerServiceProvider.GetRequiredService<IConsumerScopeProvider>();
 
                             using (var scope = consumerScopeProvider.GetScope(context))
                             {
-                                var hasPayloadScope =
-                                    scope.Context.TryGetPayload<IServiceProvider>(out var serviceProviderScope);
+                                var hasPayloadScope = scope.Context.TryGetPayload<IServiceProvider>(out var serviceProviderScope);
                                 Assert.True(hasPayloadScope);
 
                                 if (useServiceScope)
@@ -262,5 +258,6 @@ namespace MassTransit.Extensions.Hosting.Tests
             _output.WriteLine(string.Empty);
             await UseServiceScope(false).ConfigureAwait(false);
         }
+
     }
 }

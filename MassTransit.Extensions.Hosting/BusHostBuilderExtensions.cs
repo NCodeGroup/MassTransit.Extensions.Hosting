@@ -86,8 +86,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
         /// <param name="correlationIdAccessor">The callback used to return the <c>CorrelationId</c> from <see cref="ConsumeContext"/>.</param>
-        public static void UseCorrelationManager<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder,
-            Func<ConsumeContext, Guid> correlationIdAccessor)
+        public static void UseCorrelationManager<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Func<ConsumeContext, Guid> correlationIdAccessor)
             where THost : class, IHost
             where TBusFactory : class, IBusFactoryConfigurator
         {
@@ -111,8 +110,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
         /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
-        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder,
-            Action<TBusFactory, IServiceProvider> busFactoryConfigurator)
+        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Action<TBusFactory, IServiceProvider> busFactoryConfigurator)
             where THost : class, IHost
             where TBusFactory : class, IBusFactoryConfigurator
         {
@@ -130,8 +128,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
         /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
-        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder,
-            Action<IHost, TBusFactory> busFactoryConfigurator)
+        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Action<IHost, TBusFactory> busFactoryConfigurator)
             where THost : class, IHost
             where TBusFactory : class, IBusFactoryConfigurator
         {
@@ -148,8 +145,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
         /// <param name="busFactoryConfigurator">The configuration callback to configure the Bus.</param>
-        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder,
-            Action<TBusFactory> busFactoryConfigurator)
+        public static void AddConfigurator<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, Action<TBusFactory> busFactoryConfigurator)
             where THost : class, IHost
             where TBusFactory : class, IBusFactoryConfigurator
         {
@@ -168,15 +164,11 @@ namespace MassTransit.Extensions.Hosting
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
         /// <param name="queueName">The queue name for the receiving endpoint.</param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddReceiveEndpoint<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder,
-            string queueName, Action<IReceiveEndpointBuilder> endpointConfigurator)
+        public static void AddReceiveEndpoint<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, string queueName, Action<IReceiveEndpointBuilder> endpointConfigurator)
             where THost : class, IHost
             where TBusFactory : class, IBusFactoryConfigurator
         {
-            AddReceiveEndpoint(builder, queueName,
-                (IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator> endpointBuilder) =>
-                    endpointConfigurator?.Invoke(endpointBuilder)
-            );
+            AddReceiveEndpoint(builder, queueName, (IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator> endpointBuilder) => endpointConfigurator?.Invoke(endpointBuilder));
         }
 
         /// <summary>
@@ -186,8 +178,7 @@ namespace MassTransit.Extensions.Hosting
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
         /// <param name="queueName">The queue name for the receiving endpoint.</param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddReceiveEndpoint<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder,
-            string queueName, Action<IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator>> endpointConfigurator)
+        public static void AddReceiveEndpoint<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, string queueName, Action<IReceiveEndpointBuilder<THost, IReceiveEndpointConfigurator>> endpointConfigurator)
             where THost : class, IHost
             where TBusFactory : class, IBusFactoryConfigurator
         {
@@ -201,9 +192,12 @@ namespace MassTransit.Extensions.Hosting
 
             builder.AddConfigurator((host, busFactory, serviceProvider) =>
             {
-                busFactory.ReceiveEndpoint(queueName,
-                    endpoint => { endpointBuilder.Configure(host, endpoint, serviceProvider); });
+                busFactory.ReceiveEndpoint(queueName, endpoint =>
+                {
+                    endpointBuilder.Configure(host, endpoint, serviceProvider);
+                });
             });
         }
+
     }
 }

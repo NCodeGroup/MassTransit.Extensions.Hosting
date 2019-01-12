@@ -136,5 +136,6 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockHost.Object, host);
             }
         }
+
     }
 }

@@ -25,8 +25,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
     /// <summary>
     /// Provides an abstraction to configure and initialize RabbitMq specific receiving endpoints.
     /// </summary>
-    public interface
-        IRabbitMqReceiveEndpointBuilder : IReceiveEndpointBuilder<IRabbitMqHost, IRabbitMqReceiveEndpointConfigurator>
+    public interface IRabbitMqReceiveEndpointBuilder : IReceiveEndpointBuilder<IRabbitMqHost, IRabbitMqReceiveEndpointConfigurator>
     {
         // nothing
     }
@@ -47,5 +46,6 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         {
             // nothing
         }
+
     }
 }

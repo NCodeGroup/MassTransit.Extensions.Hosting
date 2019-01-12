@@ -29,5 +29,6 @@ namespace Example.TopshelfHost
             // do something...
             await Task.CompletedTask.ConfigureAwait(false);
         }
+
     }
 }

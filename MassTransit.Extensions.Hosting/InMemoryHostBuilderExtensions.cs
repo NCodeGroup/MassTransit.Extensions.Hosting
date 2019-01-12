@@ -33,8 +33,7 @@ namespace MassTransit.Extensions.Hosting
         /// <param name="builder"><see cref="IInMemoryHostBuilder"/></param>
         /// <param name="queueName">The queue name for the receiving endpoint.</param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddReceiveEndpoint(this IInMemoryHostBuilder builder, string queueName,
-            Action<IInMemoryReceiveEndpointBuilder> endpointConfigurator)
+        public static void AddReceiveEndpoint(this IInMemoryHostBuilder builder, string queueName, Action<IInMemoryReceiveEndpointBuilder> endpointConfigurator)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -46,9 +45,12 @@ namespace MassTransit.Extensions.Hosting
 
             builder.AddConfigurator((host, busFactory, serviceProvider) =>
             {
-                busFactory.ReceiveEndpoint(queueName,
-                    endpoint => { endpointBuilder.Configure(host, endpoint, serviceProvider); });
+                busFactory.ReceiveEndpoint(queueName, endpoint =>
+                {
+                    endpointBuilder.Configure(host, endpoint, serviceProvider);
+                });
             });
         }
+
     }
 }

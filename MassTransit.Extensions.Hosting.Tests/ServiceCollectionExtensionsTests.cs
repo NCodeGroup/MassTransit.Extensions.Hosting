@@ -84,5 +84,6 @@ namespace MassTransit.Extensions.Hosting.Tests
             Assert.Equal(1, services.Count(item => item.ServiceType == typeof(IConsumerScopeProvider)));
             Assert.Equal(1, services.Count(item => item.ServiceType == typeof(IConsumerFactory<>)));
         }
+
     }
 }

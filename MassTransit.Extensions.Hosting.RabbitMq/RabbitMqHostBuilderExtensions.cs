@@ -32,8 +32,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="builder"><see cref="IRabbitMqHostBuilder"/></param>
         /// <param name="username">Contains the username.</param>
         /// <param name="password">Contains the password.</param>
-        public static IRabbitMqHostBuilder UseCredentials(this IRabbitMqHostBuilder builder, string username,
-            string password)
+        public static IRabbitMqHostBuilder UseCredentials(this IRabbitMqHostBuilder builder, string username, string password)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -51,8 +50,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="builder"><see cref="IRabbitMqHostBuilder"/></param>
         /// <param name="queueName">The queue name for the receiving endpoint.</param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddReceiveEndpoint(this IRabbitMqHostBuilder builder, string queueName,
-            Action<IRabbitMqReceiveEndpointBuilder> endpointConfigurator)
+        public static void AddReceiveEndpoint(this IRabbitMqHostBuilder builder, string queueName, Action<IRabbitMqReceiveEndpointBuilder> endpointConfigurator)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -64,9 +62,12 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
 
             builder.AddConfigurator((host, busFactory, serviceProvider) =>
             {
-                busFactory.ReceiveEndpoint(host, queueName,
-                    endpoint => { endpointBuilder.Configure(host, endpoint, serviceProvider); });
+                busFactory.ReceiveEndpoint(host, queueName, endpoint =>
+                {
+                    endpointBuilder.Configure(host, endpoint, serviceProvider);
+                });
             });
         }
+
     }
 }

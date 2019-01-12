@@ -69,8 +69,7 @@ namespace MassTransit.Extensions.Hosting
         where THost : class, IHost
         where TBusFactory : class, IBusFactoryConfigurator
     {
-        private readonly IList<Action<THost, TBusFactory, IServiceProvider>> _configuratorActions =
-            new List<Action<THost, TBusFactory, IServiceProvider>>();
+        private readonly IList<Action<THost, TBusFactory, IServiceProvider>> _configuratorActions = new List<Action<THost, TBusFactory, IServiceProvider>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BusHostBuilder{THost,TBusFactory}"/> class.
@@ -116,5 +115,6 @@ namespace MassTransit.Extensions.Hosting
                 configuratorAction(host, busFactory, serviceProvider);
             }
         }
+
     }
 }

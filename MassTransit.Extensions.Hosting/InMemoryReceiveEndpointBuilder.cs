@@ -25,8 +25,7 @@ namespace MassTransit.Extensions.Hosting
     /// <summary>
     /// Provides an abstraction to configure and initialize InMemory specific receiving endpoints.
     /// </summary>
-    public interface
-        IInMemoryReceiveEndpointBuilder : IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator>
+    public interface IInMemoryReceiveEndpointBuilder : IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator>
     {
         // nothing
     }
@@ -47,5 +46,6 @@ namespace MassTransit.Extensions.Hosting
         {
             // nothing
         }
+
     }
 }

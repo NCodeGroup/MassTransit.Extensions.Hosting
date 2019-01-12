@@ -69,8 +69,7 @@ namespace MassTransit.Extensions.Hosting
     {
         private readonly IReadOnlyCollection<IBusHostFactory> _busHostFactoryList;
 
-        private readonly ConcurrentDictionary<string, Lazy<IBusControl>> _cache =
-            new ConcurrentDictionary<string, Lazy<IBusControl>>();
+        private readonly ConcurrentDictionary<string, Lazy<IBusControl>> _cache = new ConcurrentDictionary<string, Lazy<IBusControl>>();
 
         private readonly object _lock = new object();
         private readonly ILogger<BusManager> _logger;
@@ -83,11 +82,20 @@ namespace MassTransit.Extensions.Hosting
 
         private int _state;
 
+        private enum State
+        {
+            Initial,
+            Starting,
+            Started,
+            Stopping,
+            Stopped,
+            Faulted,
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BusManager"/> class.
         /// </summary>
-        public BusManager(IServiceProvider serviceProvider, IEnumerable<IBusHostFactory> busHostFactoryList,
-            ILogger<BusManager> logger)
+        public BusManager(IServiceProvider serviceProvider, IEnumerable<IBusHostFactory> busHostFactoryList, ILogger<BusManager> logger)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -95,8 +103,7 @@ namespace MassTransit.Extensions.Hosting
             if (busHostFactoryList == null)
                 throw new ArgumentNullException(nameof(busHostFactoryList));
 
-            _busHostFactoryList = busHostFactoryList as IReadOnlyCollection<IBusHostFactory> ??
-                                  busHostFactoryList.ToArray();
+            _busHostFactoryList = busHostFactoryList as IReadOnlyCollection<IBusHostFactory> ?? busHostFactoryList.ToArray();
         }
 
         /// <inheritdoc />
@@ -113,7 +120,7 @@ namespace MassTransit.Extensions.Hosting
         {
             lock (_lock)
             {
-                var state = (State) Interlocked.CompareExchange(ref _state, (int) State.Started, (int) State.Started);
+                var state = (State)Interlocked.CompareExchange(ref _state, (int)State.Started, (int)State.Started);
                 if (state != State.Started)
                     throw new InvalidOperationException("The bus manager must be started");
 
@@ -131,7 +138,7 @@ namespace MassTransit.Extensions.Hosting
         public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
             var beforeState =
-                (State) Interlocked.CompareExchange(ref _state, (int) State.Starting, (int) State.Initial);
+                (State)Interlocked.CompareExchange(ref _state, (int)State.Starting, (int)State.Initial);
             if (beforeState != State.Initial)
                 throw new InvalidOperationException("The bus managed can only be started once");
 
@@ -144,14 +151,14 @@ namespace MassTransit.Extensions.Hosting
             }
             catch (Exception exception)
             {
-                Interlocked.Exchange(ref _state, (int) State.Faulted);
+                Interlocked.Exchange(ref _state, (int)State.Faulted);
 
                 _logger.LogCritical(exception, "Bus manager faulted during startup");
 
                 throw;
             }
 
-            Interlocked.Exchange(ref _state, (int) State.Started);
+            Interlocked.Exchange(ref _state, (int)State.Started);
 
             Notify(_startedSource, "An error occurred starting the bus manager");
 
@@ -165,10 +172,9 @@ namespace MassTransit.Extensions.Hosting
             lock (_lock)
             {
                 var beforeState =
-                    (State) Interlocked.CompareExchange(ref _state, (int) State.Stopping, (int) State.Started);
+                    (State)Interlocked.CompareExchange(ref _state, (int)State.Stopping, (int)State.Started);
                 if (beforeState != State.Started)
-                    throw new InvalidOperationException(
-                        "The bus manager can only be stopped once after it has started");
+                    throw new InvalidOperationException("The bus manager can only be stopped once after it has started");
             }
 
             if (_logger.IsEnabled(LogLevel.Debug))
@@ -182,14 +188,14 @@ namespace MassTransit.Extensions.Hosting
             }
             catch (Exception exception)
             {
-                Interlocked.Exchange(ref _state, (int) State.Faulted);
+                Interlocked.Exchange(ref _state, (int)State.Faulted);
 
                 _logger.LogCritical(exception, "Bus manager faulted during shutdown");
 
                 throw;
             }
 
-            Interlocked.Exchange(ref _state, (int) State.Stopped);
+            Interlocked.Exchange(ref _state, (int)State.Stopped);
 
             Notify(_stoppedSource, "An error occurred stopping the bus manager");
 
@@ -216,8 +222,7 @@ namespace MassTransit.Extensions.Hosting
 
         private IBusControl GetBus(IBusHostFactory factory)
         {
-            return _cache.GetOrAdd(factory.ConnectionName,
-                new Lazy<IBusControl>(() => factory.Create(_serviceProvider))).Value;
+            return _cache.GetOrAdd(factory.ConnectionName, new Lazy<IBusControl>(() => factory.Create(_serviceProvider))).Value;
         }
 
         private async Task ExecuteAsync(Func<IBusControl, Task> action)
@@ -246,14 +251,5 @@ namespace MassTransit.Extensions.Hosting
             }
         }
 
-        private enum State
-        {
-            Initial,
-            Starting,
-            Started,
-            Stopping,
-            Stopped,
-            Faulted,
-        }
     }
 }

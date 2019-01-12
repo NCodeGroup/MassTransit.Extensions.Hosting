@@ -33,8 +33,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="hostAddress">The URI host address of the RabbitMQ host (example: rabbitmq://host:port/vhost).</param>
         /// <param name="hostConfigurator">The configuration callback to configure the RabbitMq bus.</param>
-        public static void UseRabbitMq(this IMassTransitBuilder builder, string connectionName, Uri hostAddress,
-            Action<IRabbitMqHostBuilder> hostConfigurator)
+        public static void UseRabbitMq(this IMassTransitBuilder builder, string connectionName, Uri hostAddress, Action<IRabbitMqHostBuilder> hostConfigurator)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -53,8 +52,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="host">The host name of the RabbitMq broker.</param>
         /// <param name="virtualHost">The virtual host to use.</param>
         /// <param name="hostConfigurator">The configuration callback to configure the RabbitMq bus.</param>
-        public static void UseRabbitMq(this IMassTransitBuilder builder, string connectionName, string host,
-            string virtualHost, Action<IRabbitMqHostBuilder> hostConfigurator)
+        public static void UseRabbitMq(this IMassTransitBuilder builder, string connectionName, string host, string virtualHost, Action<IRabbitMqHostBuilder> hostConfigurator)
         {
             UseRabbitMq(builder, connectionName, host, RabbitMqOptions.DefaultPort, virtualHost, hostConfigurator);
         }
@@ -65,8 +63,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="builder"><see cref="IMassTransitBuilder"/></param>.
         /// <param name="options"><see cref="RabbitMqOptions"/></param>
         /// <param name="hostConfigurator">The configuration callback to configure the RabbitMq bus.</param>
-        public static void UseRabbitMq(this IMassTransitBuilder builder, RabbitMqOptions options,
-            Action<IRabbitMqHostBuilder> hostConfigurator)
+        public static void UseRabbitMq(this IMassTransitBuilder builder, RabbitMqOptions options, Action<IRabbitMqHostBuilder> hostConfigurator)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
@@ -92,8 +89,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="port">The port to connect to on the RabbitMq broker.</param>
         /// <param name="virtualHost">The virtual host to use.</param>
         /// <param name="hostConfigurator">The configuration callback to configure the RabbitMq bus.</param>
-        public static void UseRabbitMq(this IMassTransitBuilder builder, string connectionName, string host,
-            ushort port, string virtualHost, Action<IRabbitMqHostBuilder> hostConfigurator)
+        public static void UseRabbitMq(this IMassTransitBuilder builder, string connectionName, string host, ushort port, string virtualHost, Action<IRabbitMqHostBuilder> hostConfigurator)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -105,5 +101,6 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             var hostBuilder = new RabbitMqHostBuilder(builder.Services, connectionName, host, port, virtualHost);
             hostConfigurator?.Invoke(hostBuilder);
         }
+
     }
 }

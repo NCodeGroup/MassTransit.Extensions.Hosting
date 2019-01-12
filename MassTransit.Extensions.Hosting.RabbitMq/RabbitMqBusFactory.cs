@@ -33,5 +33,6 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         {
             return Bus.Factory.CreateUsingRabbitMq(configure);
         }
+
     }
 }

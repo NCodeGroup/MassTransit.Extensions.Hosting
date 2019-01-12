@@ -48,5 +48,6 @@ namespace MassTransit.Extensions.Hosting.Tests
         {
             return CreateFunc?.Invoke(serviceProvider);
         }
+
     }
 }

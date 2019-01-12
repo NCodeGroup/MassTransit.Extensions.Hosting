@@ -100,7 +100,10 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
                 builder.AddXUnit(_output);
             });
 
-            services.AddMassTransit(builder => { builder.UseRabbitMq(options, null); });
+            services.AddMassTransit(builder =>
+            {
+                builder.UseRabbitMq(options, null);
+            });
 
             using (var serviceProvider = services.BuildServiceProvider())
             {
@@ -146,8 +149,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             mockRabbitMqBusFactory
                 .Setup(_ => _.Create(It.IsAny<Action<IRabbitMqBusFactoryConfigurator>>()))
-                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) =>
-                    configure(mockRabbitMqBusFactoryConfigurator.Object))
+                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) => configure(mockRabbitMqBusFactoryConfigurator.Object))
                 .Returns(mockBusControl.Object)
                 .Verifiable();
 
@@ -175,8 +177,10 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             services.AddMassTransit(builder =>
             {
-                builder.UseRabbitMq(connectionName, host, virtualHost,
-                    hostConfigurator => { hostConfigurator.UseCredentials(username, password); });
+                builder.UseRabbitMq(connectionName, host, virtualHost, hostConfigurator =>
+                {
+                    hostConfigurator.UseCredentials(username, password);
+                });
             });
 
             using (var serviceProvider = services.BuildServiceProvider())
@@ -222,8 +226,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             mockRabbitMqBusFactory
                 .Setup(_ => _.Create(It.IsAny<Action<IRabbitMqBusFactoryConfigurator>>()))
-                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) =>
-                    configure(mockRabbitMqBusFactoryConfigurator.Object))
+                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) => configure(mockRabbitMqBusFactoryConfigurator.Object))
                 .Returns(mockBusControl.Object)
                 .Verifiable();
 
@@ -250,8 +253,10 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             services.AddMassTransit(builder =>
             {
-                builder.UseRabbitMq(connectionName, hostAddress,
-                    hostConfigurator => { hostConfigurator.UseCredentials(username, password); });
+                builder.UseRabbitMq(connectionName, hostAddress, hostConfigurator =>
+                {
+                    hostConfigurator.UseCredentials(username, password);
+                });
             });
 
             using (var serviceProvider = services.BuildServiceProvider())
@@ -285,12 +290,16 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
                 builder.AddXUnit(_output);
             });
 
-            services.AddMassTransit(builder => { builder.UseRabbitMq(connectionName, hostAddress, null); });
+            services.AddMassTransit(builder =>
+            {
+                builder.UseRabbitMq(connectionName, hostAddress, null);
+            });
 
             Assert.Contains(services, item =>
                 item.Lifetime == ServiceLifetime.Transient &&
                 item.ServiceType == typeof(IBusFactory<IRabbitMqBusFactoryConfigurator>) &&
                 item.ImplementationType == typeof(RabbitMqBusFactory));
         }
+
     }
 }

@@ -123,8 +123,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="host">The host name of the RabbitMq broker.</param>
         /// <param name="port">The port to connect to on the RabbitMq broker.</param>
         /// <param name="virtualHost">The virtual host to use.</param>
-        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, string host, ushort port,
-            string virtualHost)
+        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, string host, ushort port, string virtualHost)
             : this(services, connectionName)
         {
             if (host == null)
@@ -205,5 +204,6 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
 
             return busControl;
         }
+
     }
 }

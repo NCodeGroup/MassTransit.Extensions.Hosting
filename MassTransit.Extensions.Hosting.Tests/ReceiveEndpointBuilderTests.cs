@@ -34,8 +34,7 @@ namespace MassTransit.Extensions.Hosting.Tests
         public void AddConfigurator_GivenCovariantEndpoint_ThenValid()
         {
             var services = new ServiceCollection();
-            var receiveEndpointBuilder =
-                new ReceiveEndpointBuilder<IHost, IInMemoryReceiveEndpointConfigurator>(services);
+            var receiveEndpointBuilder = new ReceiveEndpointBuilder<IHost, IInMemoryReceiveEndpointConfigurator>(services);
 
             var mockHost = new Mock<IHost>(MockBehavior.Strict);
             var mockServiceProvider = new Mock<IServiceProvider>(MockBehavior.Strict);
@@ -49,8 +48,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -60,8 +58,7 @@ namespace MassTransit.Extensions.Hosting.Tests
         public void AddConfigurator_GivenCovariantHost_ThenValid()
         {
             var services = new ServiceCollection();
-            var receiveEndpointBuilder =
-                new ReceiveEndpointBuilder<IInMemoryHost, IReceiveEndpointConfigurator>(services);
+            var receiveEndpointBuilder = new ReceiveEndpointBuilder<IInMemoryHost, IReceiveEndpointConfigurator>(services);
 
             var mockHost = new Mock<IInMemoryHost>(MockBehavior.Strict);
             var mockServiceProvider = new Mock<IServiceProvider>(MockBehavior.Strict);
@@ -75,8 +72,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -86,8 +82,7 @@ namespace MassTransit.Extensions.Hosting.Tests
         public void AddConfigurator_GivenCovariantHostEndpoint_ThenValid()
         {
             var services = new ServiceCollection();
-            var receiveEndpointBuilder =
-                new ReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator>(services);
+            var receiveEndpointBuilder = new ReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator>(services);
 
             var mockHost = new Mock<IInMemoryHost>(MockBehavior.Strict);
             var mockServiceProvider = new Mock<IServiceProvider>(MockBehavior.Strict);
@@ -101,8 +96,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -112,16 +106,14 @@ namespace MassTransit.Extensions.Hosting.Tests
         public void AddConfigurator_GivenGeneric_ThenValid()
         {
             var services = new ServiceCollection();
-            var receiveEndpointBuilder =
-                new ReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator>(services);
+            var receiveEndpointBuilder = new ReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator>(services);
 
             var mockHost = new Mock<IInMemoryHost>(MockBehavior.Strict);
             var mockServiceProvider = new Mock<IServiceProvider>(MockBehavior.Strict);
             var mockReceiveEndpointConfigurator = new Mock<IInMemoryReceiveEndpointConfigurator>(MockBehavior.Strict);
 
             var configuratorWasCalled = false;
-            IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator> receiveEndpointBuilderGeneric =
-                receiveEndpointBuilder;
+            IReceiveEndpointBuilder<IInMemoryHost, IInMemoryReceiveEndpointConfigurator> receiveEndpointBuilderGeneric = receiveEndpointBuilder;
             receiveEndpointBuilderGeneric.AddConfigurator((host, configurator, serviceProvider) =>
             {
                 configuratorWasCalled = true;
@@ -130,8 +122,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -157,8 +148,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -181,8 +171,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -199,16 +188,14 @@ namespace MassTransit.Extensions.Hosting.Tests
             var mockReceiveEndpointConfigurator = new Mock<IReceiveEndpointConfigurator>(MockBehavior.Strict);
 
             var configuratorWasCalled = false;
-            receiveEndpointBuilder.AddConfigurator(
-                (IReceiveEndpointConfigurator configurator, IServiceProvider serviceProvider) =>
-                {
-                    configuratorWasCalled = true;
-                    Assert.Same(mockServiceProvider.Object, serviceProvider);
-                    Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
-                });
+            receiveEndpointBuilder.AddConfigurator((IReceiveEndpointConfigurator configurator, IServiceProvider serviceProvider) =>
+            {
+                configuratorWasCalled = true;
+                Assert.Same(mockServiceProvider.Object, serviceProvider);
+                Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
+            });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -232,8 +219,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockReceiveEndpointConfigurator.Object, configurator);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(configuratorWasCalled);
         }
@@ -262,8 +248,7 @@ namespace MassTransit.Extensions.Hosting.Tests
             var addConsumerWasCalled = false;
             receiveEndpointBuilder.AddConsumer<IConsumer>(configurator => { addConsumerWasCalled = true; });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(addConsumerWasCalled);
             mockServiceProvider.Verify();
@@ -298,8 +283,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.Same(mockServiceProvider.Object, serviceProvider);
             });
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             Assert.True(addConsumerWasCalled);
             mockServiceProvider.Verify();
@@ -329,8 +313,7 @@ namespace MassTransit.Extensions.Hosting.Tests
 
             receiveEndpointBuilder.AddConsumer<IConsumer>();
 
-            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object,
-                mockServiceProvider.Object);
+            receiveEndpointBuilder.Configure(mockHost.Object, mockReceiveEndpointConfigurator.Object, mockServiceProvider.Object);
 
             mockServiceProvider.Verify();
             mockReceiveEndpointConfigurator.Verify();
@@ -345,5 +328,6 @@ namespace MassTransit.Extensions.Hosting.Tests
 
             Assert.Same(services, receiveEndpointBuilder.Services);
         }
+
     }
 }

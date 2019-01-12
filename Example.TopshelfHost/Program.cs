@@ -35,8 +35,7 @@ namespace Example.TopshelfHost
 {
     public static class Program
     {
-        private static readonly string EnvironmentName =
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        private static readonly string EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
         private static void Main()
         {
@@ -97,8 +96,10 @@ namespace Example.TopshelfHost
                 {
                     hostBuilder.UseServiceScope();
 
-                    hostBuilder.AddReceiveEndpoint("example-queue-1",
-                        endpointBuilder => { endpointBuilder.AddConsumer<ExampleConsumer>(); });
+                    hostBuilder.AddReceiveEndpoint("example-queue-1", endpointBuilder =>
+                    {
+                        endpointBuilder.AddConsumer<ExampleConsumer>();
+                    });
                 });
             });
         }
@@ -125,10 +126,8 @@ namespace Example.TopshelfHost
                 hostConfigurator.Service<IHostedService>(serviceConfigurator =>
                 {
                     serviceConfigurator.ConstructUsing(serviceProvider.GetRequiredService<IHostedService>);
-                    serviceConfigurator.WhenStarted(async host =>
-                        await host.StartAsync(CancellationToken.None).ConfigureAwait(false));
-                    serviceConfigurator.WhenStopped(async host =>
-                        await host.StopAsync(CancellationToken.None).ConfigureAwait(false));
+                    serviceConfigurator.WhenStarted(async host => await host.StartAsync(CancellationToken.None).ConfigureAwait(false));
+                    serviceConfigurator.WhenStopped(async host => await host.StopAsync(CancellationToken.None).ConfigureAwait(false));
                 });
 
                 // by default use a least privileged account
@@ -140,5 +139,6 @@ namespace Example.TopshelfHost
 
             logger.LogInformation("Program Exiting");
         }
+
     }
 }

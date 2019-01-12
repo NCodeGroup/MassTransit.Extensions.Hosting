@@ -70,16 +70,16 @@ namespace MassTransit.Extensions.Hosting
                 logger.LogDebug("Creating InMemory Bus '{0}'", ConnectionName);
 
             var busFactory = serviceProvider.GetRequiredService<IInMemoryBusFactory>();
-            var busControl = busFactory.Create(_baseAddress,
-                busFactoryConfigurator =>
-                {
-                    Configure(busFactoryConfigurator.Host, busFactoryConfigurator, serviceProvider);
-                });
+            var busControl = busFactory.Create(_baseAddress, busFactoryConfigurator =>
+            {
+                Configure(busFactoryConfigurator.Host, busFactoryConfigurator, serviceProvider);
+            });
 
             if (loggerIsEnabled)
                 logger.LogDebug("Created InMemory Bus '{0}'", ConnectionName);
 
             return busControl;
         }
+
     }
 }

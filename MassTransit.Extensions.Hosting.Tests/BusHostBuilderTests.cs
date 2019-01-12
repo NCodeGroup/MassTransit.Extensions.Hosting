@@ -91,24 +91,22 @@ namespace MassTransit.Extensions.Hosting.Tests
             var mockReceiveEndpointConfigurator = new Mock<IReceiveEndpointConfigurator>(MockBehavior.Strict);
 
             var endpointConfiguratorWasCalled = false;
-            busHostBuilder.AddReceiveEndpoint("queue-name-test",
-                (IReceiveEndpointBuilder<IHost, IReceiveEndpointConfigurator> builder) =>
+            busHostBuilder.AddReceiveEndpoint("queue-name-test", (IReceiveEndpointBuilder<IHost, IReceiveEndpointConfigurator> builder) =>
+            {
+                builder.AddConfigurator((host, endpointConfigurator, serviceProvider) =>
                 {
-                    builder.AddConfigurator((host, endpointConfigurator, serviceProvider) =>
-                    {
-                        endpointConfiguratorWasCalled = true;
-                        Assert.Same(mockHost.Object, host);
-                        Assert.Same(mockServiceProvider.Object, serviceProvider);
-                        Assert.Same(mockReceiveEndpointConfigurator.Object, endpointConfigurator);
-                    });
+                    endpointConfiguratorWasCalled = true;
+                    Assert.Same(mockHost.Object, host);
+                    Assert.Same(mockServiceProvider.Object, serviceProvider);
+                    Assert.Same(mockReceiveEndpointConfigurator.Object, endpointConfigurator);
                 });
+            });
 
             var receiveEndpointConfigurator = mockReceiveEndpointConfigurator.Object;
 
             mockBusFactoryConfigurator
                 .Setup(_ => _.ReceiveEndpoint("queue-name-test", It.IsAny<Action<IReceiveEndpointConfigurator>>()))
-                .Callback((string queueName, Action<IReceiveEndpointConfigurator> configureEndpoint) =>
-                    configureEndpoint(receiveEndpointConfigurator))
+                .Callback((string queueName, Action<IReceiveEndpointConfigurator> configureEndpoint) => configureEndpoint(receiveEndpointConfigurator))
                 .Verifiable();
 
             busHostBuilder.DoConfigure(mockHost.Object, mockBusFactoryConfigurator.Object, mockServiceProvider.Object);
@@ -186,8 +184,8 @@ namespace MassTransit.Extensions.Hosting.Tests
             Assert.Contains(services, item =>
                 item.Lifetime == ServiceLifetime.Singleton &&
                 item.ServiceType == typeof(IHostAccessor<IHost>) &&
-                ((IHostAccessor<IHost>) item.ImplementationInstance).ConnectionName == "test" &&
-                ((IHostAccessor<IHost>) item.ImplementationInstance).Host == null);
+                ((IHostAccessor<IHost>)item.ImplementationInstance).ConnectionName == "test" &&
+                ((IHostAccessor<IHost>)item.ImplementationInstance).Host == null);
 
             var mockHost = new Mock<IHost>(MockBehavior.Strict);
             var mockBusFactoryConfigurator = new Mock<IBusFactoryConfigurator>(MockBehavior.Strict);
@@ -198,8 +196,8 @@ namespace MassTransit.Extensions.Hosting.Tests
             Assert.Contains(services, item =>
                 item.Lifetime == ServiceLifetime.Singleton &&
                 item.ServiceType == typeof(IHostAccessor<IHost>) &&
-                ((IHostAccessor<IHost>) item.ImplementationInstance).ConnectionName == "test" &&
-                ((IHostAccessor<IHost>) item.ImplementationInstance).Host == mockHost.Object);
+                ((IHostAccessor<IHost>)item.ImplementationInstance).ConnectionName == "test" &&
+                ((IHostAccessor<IHost>)item.ImplementationInstance).Host == mockHost.Object);
         }
 
         /// <summary />
@@ -213,5 +211,6 @@ namespace MassTransit.Extensions.Hosting.Tests
 
             AssertSpecifications(busHostBuilder);
         }
+
     }
 }

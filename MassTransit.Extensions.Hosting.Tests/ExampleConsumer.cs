@@ -53,5 +53,6 @@ namespace MassTransit.Extensions.Hosting.Tests
 
             return Task.CompletedTask;
         }
+
     }
 }

@@ -29,5 +29,6 @@ namespace Example.ConsoleHost
             // do something...
             await Task.CompletedTask.ConfigureAwait(false);
         }
+
     }
 }

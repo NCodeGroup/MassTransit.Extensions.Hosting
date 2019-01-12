@@ -34,8 +34,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IReceiveEndpointBuilder{THost,TEndpoint}"/></param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddConfigurator<THost, TEndpoint>(this IReceiveEndpointBuilder<THost, TEndpoint> builder,
-            Action<TEndpoint> endpointConfigurator)
+        public static void AddConfigurator<THost, TEndpoint>(this IReceiveEndpointBuilder<THost, TEndpoint> builder, Action<TEndpoint> endpointConfigurator)
             where THost : class, IHost
             where TEndpoint : class, IReceiveEndpointConfigurator
         {
@@ -52,8 +51,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IReceiveEndpointBuilder{THost,TEndpoint}"/></param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddConfigurator<THost, TEndpoint>(this IReceiveEndpointBuilder<THost, TEndpoint> builder,
-            Action<THost, TEndpoint> endpointConfigurator)
+        public static void AddConfigurator<THost, TEndpoint>(this IReceiveEndpointBuilder<THost, TEndpoint> builder, Action<THost, TEndpoint> endpointConfigurator)
             where THost : class, IHost
             where TEndpoint : class, IReceiveEndpointConfigurator
         {
@@ -70,8 +68,7 @@ namespace MassTransit.Extensions.Hosting
         /// </summary>
         /// <param name="builder"><see cref="IReceiveEndpointBuilder{THost,TEndpoint}"/></param>
         /// <param name="endpointConfigurator">The configuration callback to configure the receiving endpoint.</param>
-        public static void AddConfigurator<THost, TEndpoint>(this IReceiveEndpointBuilder<THost, TEndpoint> builder,
-            Action<TEndpoint, IServiceProvider> endpointConfigurator)
+        public static void AddConfigurator<THost, TEndpoint>(this IReceiveEndpointBuilder<THost, TEndpoint> builder, Action<TEndpoint, IServiceProvider> endpointConfigurator)
             where THost : class, IHost
             where TEndpoint : class, IReceiveEndpointConfigurator
         {
@@ -80,8 +77,7 @@ namespace MassTransit.Extensions.Hosting
             if (endpointConfigurator == null)
                 throw new ArgumentNullException(nameof(endpointConfigurator));
 
-            builder.AddConfigurator(
-                (host, endpoint, serviceProvider) => endpointConfigurator(endpoint, serviceProvider));
+            builder.AddConfigurator((host, endpoint, serviceProvider) => endpointConfigurator(endpoint, serviceProvider));
         }
 
         /// <summary>
@@ -101,12 +97,10 @@ namespace MassTransit.Extensions.Hosting
         /// <typeparam name="TConsumer">The type of the consumer.</typeparam>
         /// <param name="builder"><see cref="IReceiveEndpointBuilder"/></param>
         /// <param name="consumerConfigurator">The configuration callback to configure the consumer.</param>
-        public static void AddConsumer<TConsumer>(this IReceiveEndpointBuilder builder,
-            Action<IConsumerConfigurator<TConsumer>> consumerConfigurator)
+        public static void AddConsumer<TConsumer>(this IReceiveEndpointBuilder builder, Action<IConsumerConfigurator<TConsumer>> consumerConfigurator)
             where TConsumer : class, IConsumer
         {
-            AddConsumer<TConsumer>(builder,
-                (consumerConfigure, serviceProvider) => consumerConfigurator(consumerConfigure));
+            AddConsumer<TConsumer>(builder, (consumerConfigure, serviceProvider) => consumerConfigurator(consumerConfigure));
         }
 
         /// <summary>
@@ -115,8 +109,7 @@ namespace MassTransit.Extensions.Hosting
         /// <typeparam name="TConsumer">The type of the consumer.</typeparam>
         /// <param name="builder"><see cref="IReceiveEndpointBuilder"/></param>
         /// <param name="consumerConfigurator">The configuration callback to configure the consumer.</param>
-        public static void AddConsumer<TConsumer>(this IReceiveEndpointBuilder builder,
-            Action<IConsumerConfigurator<TConsumer>, IServiceProvider> consumerConfigurator)
+        public static void AddConsumer<TConsumer>(this IReceiveEndpointBuilder builder, Action<IConsumerConfigurator<TConsumer>, IServiceProvider> consumerConfigurator)
             where TConsumer : class, IConsumer
         {
             if (builder == null)
@@ -127,9 +120,9 @@ namespace MassTransit.Extensions.Hosting
             builder.AddConfigurator((host, endpoint, serviceProvider) =>
             {
                 var consumerFactory = serviceProvider.GetRequiredService<IConsumerFactory<TConsumer>>();
-                endpoint.Consumer(consumerFactory,
-                    consumerConfigure => consumerConfigurator?.Invoke(consumerConfigure, serviceProvider));
+                endpoint.Consumer(consumerFactory, consumerConfigure => consumerConfigurator?.Invoke(consumerConfigure, serviceProvider));
             });
         }
+
     }
 }

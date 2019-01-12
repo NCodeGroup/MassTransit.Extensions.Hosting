@@ -379,8 +379,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.False(busManager.Stopping.IsCancellationRequested);
                 Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None))
-                    .ConfigureAwait(false);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None)).ConfigureAwait(false);
 
                 Assert.False(busManager.Started.IsCancellationRequested);
                 Assert.False(busManager.Stopping.IsCancellationRequested);
@@ -436,8 +435,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.True(busManager.Stopping.IsCancellationRequested);
                 Assert.True(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None))
-                    .ConfigureAwait(false);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None)).ConfigureAwait(false);
             }
         }
 
@@ -461,8 +459,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.False(busManager.Stopping.IsCancellationRequested);
                 Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None))
-                    .ConfigureAwait(false);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None)).ConfigureAwait(false);
             }
 
             mockBusControl.Verify();
@@ -542,8 +539,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.False(busManager.Stopping.IsCancellationRequested);
                 Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None))
-                    .ConfigureAwait(false);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None)).ConfigureAwait(false);
             }
         }
 
@@ -572,5 +568,6 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.True(busManager.Stopped.IsCancellationRequested);
             }
         }
+
     }
 }

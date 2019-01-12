@@ -48,5 +48,6 @@ namespace Example.ConsoleHost
                 DateTimeData = DateTime.Now,
             });
         }
+
     }
 }
