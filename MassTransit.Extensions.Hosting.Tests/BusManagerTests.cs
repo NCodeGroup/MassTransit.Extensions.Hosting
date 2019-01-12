@@ -1,6 +1,7 @@
 #region Copyright Preamble
+
 // 
-//    Copyright @ 2018 NCode Group
+//    Copyright @ 2019 NCode Group
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -13,6 +14,7 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
 #endregion
 
 using System;
@@ -31,13 +33,13 @@ namespace MassTransit.Extensions.Hosting.Tests
     /// <summary />
     public class BusManagerTests
     {
-        private readonly ITestOutputHelper _output;
-
         /// <summary />
         public BusManagerTests(ITestOutputHelper output)
         {
             _output = output ?? throw new ArgumentNullException(nameof(output));
         }
+
+        private readonly ITestOutputHelper _output;
 
         private ServiceProvider CreateServiceProvider(Action<IServiceCollection> configurator = null)
         {
@@ -58,29 +60,116 @@ namespace MassTransit.Extensions.Hosting.Tests
 
         /// <summary />
         [Fact]
-        public async Task Start_GivenNoFactory_ThenStarted()
+        public void GetBus_GivenFactory_WhenNotStarted_ThenThrows()
         {
-            using (var serviceProvider = CreateServiceProvider())
+            const string connectionName = "test-connection";
+
+            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
+            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
+
+            void ConfigureServices(IServiceCollection services)
+            {
+                services.AddSingleton(mockBusHostFactory.Object);
+            }
+
+            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
             {
                 var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
                 Assert.False(busManager.Started.IsCancellationRequested);
-                Assert.False(busManager.Stopping.IsCancellationRequested);
-                Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
-
-                Assert.True(busManager.Started.IsCancellationRequested);
-                Assert.False(busManager.Stopping.IsCancellationRequested);
-                Assert.False(busManager.Stopped.IsCancellationRequested);
+                Assert.Throws<InvalidOperationException>(() => busManager.GetBus(connectionName));
             }
+
+            mockBusControl.Verify();
+            mockBusHostFactory.Verify();
         }
 
         /// <summary />
         [Fact]
-        public async Task Start_GivenNoFactory_WhenStopped_ThenThrows()
+        public async Task GetBus_GivenFactory_WhenStarted_ThenSuccess()
         {
-            using (var serviceProvider = CreateServiceProvider())
+            const string connectionName = "test-connection";
+
+            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
+            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
+            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
+
+            mockBusHostFactory
+                .SetupGet(_ => _.ConnectionName)
+                .Returns(connectionName)
+                .Verifiable();
+
+            mockBusHostFactory
+                .Setup(_ => _.Create(It.IsAny<IServiceProvider>()))
+                .Returns(mockBusControl.Object)
+                .Verifiable();
+
+            mockBusControl
+                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(mockBusHandle.Object)
+                .Verifiable();
+
+            void ConfigureServices(IServiceCollection services)
+            {
+                services.AddSingleton(mockBusHostFactory.Object);
+            }
+
+            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
+            {
+                var busManager = serviceProvider.GetRequiredService<IBusManager>();
+
+                Assert.False(busManager.Started.IsCancellationRequested);
+
+                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
+
+                Assert.True(busManager.Started.IsCancellationRequested);
+
+                var bus = busManager.GetBus(connectionName);
+                Assert.NotNull(bus);
+            }
+
+            mockBusControl.Verify();
+            mockBusHostFactory.Verify();
+            mockBusHandle.Verify();
+        }
+
+        /// <summary />
+        [Fact]
+        public async Task GetBus_GivenFactory_WhenStopped_ThenThrows()
+        {
+            const string connectionName = "test-connection";
+
+            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
+            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
+            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
+
+            mockBusHostFactory
+                .SetupGet(_ => _.ConnectionName)
+                .Returns(connectionName)
+                .Verifiable();
+
+            mockBusHostFactory
+                .Setup(_ => _.Create(It.IsAny<IServiceProvider>()))
+                .Returns(mockBusControl.Object)
+                .Verifiable();
+
+            mockBusControl
+                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(mockBusHandle.Object)
+                .Verifiable();
+
+            mockBusControl
+                .Setup(_ => _.StopAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            void ConfigureServices(IServiceCollection services)
+            {
+                services.AddSingleton(mockBusHostFactory.Object);
+            }
+
+            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
             {
                 var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
@@ -100,50 +189,61 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.True(busManager.Stopping.IsCancellationRequested);
                 Assert.True(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None)).ConfigureAwait(false);
+                Assert.Throws<InvalidOperationException>(() => busManager.GetBus(connectionName));
             }
+
+            mockBusControl.Verify();
+            mockBusHostFactory.Verify();
+            mockBusHandle.Verify();
         }
 
         /// <summary />
         [Fact]
-        public async Task Stop_GivenNoFactory_WhenNotStarted_ThenThrows()
+        public async Task GetBus_GivenFactoryWrongName_WhenStarted_ThenThrows()
         {
-            using (var serviceProvider = CreateServiceProvider())
+            const string registeredConnection = "test-connection";
+            const string otherConnection = "other-connection";
+
+            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
+            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
+            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
+
+            mockBusHostFactory
+                .SetupGet(_ => _.ConnectionName)
+                .Returns(registeredConnection)
+                .Verifiable();
+
+            mockBusHostFactory
+                .Setup(_ => _.Create(It.IsAny<IServiceProvider>()))
+                .Returns(mockBusControl.Object)
+                .Verifiable();
+
+            mockBusControl
+                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(mockBusHandle.Object)
+                .Verifiable();
+
+            void ConfigureServices(IServiceCollection services)
             {
-                var busManager = serviceProvider.GetRequiredService<IBusManager>();
-
-                Assert.False(busManager.Started.IsCancellationRequested);
-                Assert.False(busManager.Stopping.IsCancellationRequested);
-                Assert.False(busManager.Stopped.IsCancellationRequested);
-
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None)).ConfigureAwait(false);
+                services.AddSingleton(mockBusHostFactory.Object);
             }
-        }
 
-        /// <summary />
-        [Fact]
-        public async Task Stop_GivenNoFactory_WhenStarted_ThenStopped()
-        {
-            using (var serviceProvider = CreateServiceProvider())
+            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
             {
                 var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
                 Assert.False(busManager.Started.IsCancellationRequested);
-                Assert.False(busManager.Stopping.IsCancellationRequested);
-                Assert.False(busManager.Stopped.IsCancellationRequested);
 
                 await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
 
                 Assert.True(busManager.Started.IsCancellationRequested);
-                Assert.False(busManager.Stopping.IsCancellationRequested);
-                Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await busManager.StopAsync(CancellationToken.None).ConfigureAwait(false);
-
-                Assert.True(busManager.Started.IsCancellationRequested);
-                Assert.True(busManager.Stopping.IsCancellationRequested);
-                Assert.True(busManager.Stopped.IsCancellationRequested);
+                Assert.Throws<KeyNotFoundException>(() => busManager.GetBus(otherConnection));
             }
+
+            mockBusControl.Verify();
+            mockBusHostFactory.Verify();
+            mockBusHandle.Verify();
         }
 
         /// <summary />
@@ -279,7 +379,8 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.False(busManager.Stopping.IsCancellationRequested);
                 Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None)).ConfigureAwait(false);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None))
+                    .ConfigureAwait(false);
 
                 Assert.False(busManager.Started.IsCancellationRequested);
                 Assert.False(busManager.Stopping.IsCancellationRequested);
@@ -289,6 +390,55 @@ namespace MassTransit.Extensions.Hosting.Tests
             mockBusControl.Verify();
             mockBusHostFactory.Verify();
             mockBusHandle.Verify();
+        }
+
+        /// <summary />
+        [Fact]
+        public async Task Start_GivenNoFactory_ThenStarted()
+        {
+            using (var serviceProvider = CreateServiceProvider())
+            {
+                var busManager = serviceProvider.GetRequiredService<IBusManager>();
+
+                Assert.False(busManager.Started.IsCancellationRequested);
+                Assert.False(busManager.Stopping.IsCancellationRequested);
+                Assert.False(busManager.Stopped.IsCancellationRequested);
+
+                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
+
+                Assert.True(busManager.Started.IsCancellationRequested);
+                Assert.False(busManager.Stopping.IsCancellationRequested);
+                Assert.False(busManager.Stopped.IsCancellationRequested);
+            }
+        }
+
+        /// <summary />
+        [Fact]
+        public async Task Start_GivenNoFactory_WhenStopped_ThenThrows()
+        {
+            using (var serviceProvider = CreateServiceProvider())
+            {
+                var busManager = serviceProvider.GetRequiredService<IBusManager>();
+
+                Assert.False(busManager.Started.IsCancellationRequested);
+                Assert.False(busManager.Stopping.IsCancellationRequested);
+                Assert.False(busManager.Stopped.IsCancellationRequested);
+
+                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
+
+                Assert.True(busManager.Started.IsCancellationRequested);
+                Assert.False(busManager.Stopping.IsCancellationRequested);
+                Assert.False(busManager.Stopped.IsCancellationRequested);
+
+                await busManager.StopAsync(CancellationToken.None).ConfigureAwait(false);
+
+                Assert.True(busManager.Started.IsCancellationRequested);
+                Assert.True(busManager.Stopping.IsCancellationRequested);
+                Assert.True(busManager.Stopped.IsCancellationRequested);
+
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StartAsync(CancellationToken.None))
+                    .ConfigureAwait(false);
+            }
         }
 
         /// <summary />
@@ -311,7 +461,8 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.False(busManager.Stopping.IsCancellationRequested);
                 Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None)).ConfigureAwait(false);
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None))
+                    .ConfigureAwait(false);
             }
 
             mockBusControl.Verify();
@@ -381,67 +532,26 @@ namespace MassTransit.Extensions.Hosting.Tests
 
         /// <summary />
         [Fact]
-        public void GetBus_GivenFactory_WhenNotStarted_ThenThrows()
+        public async Task Stop_GivenNoFactory_WhenNotStarted_ThenThrows()
         {
-            const string connectionName = "test-connection";
-
-            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
-            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
-
-            void ConfigureServices(IServiceCollection services)
-            {
-                services.AddSingleton(mockBusHostFactory.Object);
-            }
-
-            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
+            using (var serviceProvider = CreateServiceProvider())
             {
                 var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
                 Assert.False(busManager.Started.IsCancellationRequested);
+                Assert.False(busManager.Stopping.IsCancellationRequested);
+                Assert.False(busManager.Stopped.IsCancellationRequested);
 
-                Assert.Throws<InvalidOperationException>(() => busManager.GetBus(connectionName));
+                await Assert.ThrowsAsync<InvalidOperationException>(() => busManager.StopAsync(CancellationToken.None))
+                    .ConfigureAwait(false);
             }
-
-            mockBusControl.Verify();
-            mockBusHostFactory.Verify();
         }
 
         /// <summary />
         [Fact]
-        public async Task GetBus_GivenFactory_WhenStopped_ThenThrows()
+        public async Task Stop_GivenNoFactory_WhenStarted_ThenStopped()
         {
-            const string connectionName = "test-connection";
-
-            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
-            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
-            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
-
-            mockBusHostFactory
-                .SetupGet(_ => _.ConnectionName)
-                .Returns(connectionName)
-                .Verifiable();
-
-            mockBusHostFactory
-                .Setup(_ => _.Create(It.IsAny<IServiceProvider>()))
-                .Returns(mockBusControl.Object)
-                .Verifiable();
-
-            mockBusControl
-                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(mockBusHandle.Object)
-                .Verifiable();
-
-            mockBusControl
-                .Setup(_ => _.StopAsync(It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask)
-                .Verifiable();
-
-            void ConfigureServices(IServiceCollection services)
-            {
-                services.AddSingleton(mockBusHostFactory.Object);
-            }
-
-            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
+            using (var serviceProvider = CreateServiceProvider())
             {
                 var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
@@ -460,112 +570,7 @@ namespace MassTransit.Extensions.Hosting.Tests
                 Assert.True(busManager.Started.IsCancellationRequested);
                 Assert.True(busManager.Stopping.IsCancellationRequested);
                 Assert.True(busManager.Stopped.IsCancellationRequested);
-
-                Assert.Throws<InvalidOperationException>(() => busManager.GetBus(connectionName));
             }
-
-            mockBusControl.Verify();
-            mockBusHostFactory.Verify();
-            mockBusHandle.Verify();
         }
-
-        /// <summary />
-        [Fact]
-        public async Task GetBus_GivenFactoryWrongName_WhenStarted_ThenThrows()
-        {
-            const string registeredConnection = "test-connection";
-            const string otherConnection = "other-connection";
-
-            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
-            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
-            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
-
-            mockBusHostFactory
-                .SetupGet(_ => _.ConnectionName)
-                .Returns(registeredConnection)
-                .Verifiable();
-
-            mockBusHostFactory
-                .Setup(_ => _.Create(It.IsAny<IServiceProvider>()))
-                .Returns(mockBusControl.Object)
-                .Verifiable();
-
-            mockBusControl
-                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(mockBusHandle.Object)
-                .Verifiable();
-
-            void ConfigureServices(IServiceCollection services)
-            {
-                services.AddSingleton(mockBusHostFactory.Object);
-            }
-
-            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
-            {
-                var busManager = serviceProvider.GetRequiredService<IBusManager>();
-
-                Assert.False(busManager.Started.IsCancellationRequested);
-
-                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
-
-                Assert.True(busManager.Started.IsCancellationRequested);
-
-                Assert.Throws<KeyNotFoundException>(() => busManager.GetBus(otherConnection));
-            }
-
-            mockBusControl.Verify();
-            mockBusHostFactory.Verify();
-            mockBusHandle.Verify();
-        }
-
-        /// <summary />
-        [Fact]
-        public async Task GetBus_GivenFactory_WhenStarted_ThenSuccess()
-        {
-            const string connectionName = "test-connection";
-
-            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
-            var mockBusHostFactory = new Mock<IBusHostFactory>(MockBehavior.Strict);
-            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
-
-            mockBusHostFactory
-                .SetupGet(_ => _.ConnectionName)
-                .Returns(connectionName)
-                .Verifiable();
-
-            mockBusHostFactory
-                .Setup(_ => _.Create(It.IsAny<IServiceProvider>()))
-                .Returns(mockBusControl.Object)
-                .Verifiable();
-
-            mockBusControl
-                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(mockBusHandle.Object)
-                .Verifiable();
-
-            void ConfigureServices(IServiceCollection services)
-            {
-                services.AddSingleton(mockBusHostFactory.Object);
-            }
-
-            using (var serviceProvider = CreateServiceProvider(ConfigureServices))
-            {
-                var busManager = serviceProvider.GetRequiredService<IBusManager>();
-
-                Assert.False(busManager.Started.IsCancellationRequested);
-
-                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
-
-                Assert.True(busManager.Started.IsCancellationRequested);
-
-                var bus = busManager.GetBus(connectionName);
-                Assert.NotNull(bus);
-            }
-
-            mockBusControl.Verify();
-            mockBusHostFactory.Verify();
-            mockBusHandle.Verify();
-        }
-
     }
 }

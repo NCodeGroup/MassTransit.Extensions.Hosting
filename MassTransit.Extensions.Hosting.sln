@@ -24,6 +24,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.TopshelfHost", "Exa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Hosting.Tests", "MassTransit.Extensions.Hosting.Tests\MassTransit.Extensions.Hosting.Tests.csproj", "{0AED767E-D526-4273-A7CA-1032097D758B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.Extensions.Hosting.RabbitMq.Tests", "MassTransit.Extensions.Hosting.RabbitMq.Tests\MassTransit.Extensions.Hosting.RabbitMq.Tests.csproj", "{812A83B2-9017-4CF8-AD86-61EAA61E89CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{0AED767E-D526-4273-A7CA-1032097D758B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AED767E-D526-4273-A7CA-1032097D758B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AED767E-D526-4273-A7CA-1032097D758B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

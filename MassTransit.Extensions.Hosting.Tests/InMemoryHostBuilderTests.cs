@@ -1,6 +1,7 @@
 #region Copyright Preamble
+
 // 
-//    Copyright @ 2018 NCode Group
+//    Copyright @ 2019 NCode Group
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -13,6 +14,7 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
 #endregion
 
 using System;
@@ -34,88 +36,13 @@ namespace MassTransit.Extensions.Hosting.Tests
     /// <summary />
     public class InMemoryHostBuilderTests
     {
-        private readonly ITestOutputHelper _output;
-
         /// <summary />
         public InMemoryHostBuilderTests(ITestOutputHelper output)
         {
             _output = output ?? throw new ArgumentNullException(nameof(output));
         }
 
-        /// <summary />
-        [Fact]
-        public void Create_ThenValid()
-        {
-            var services = new ServiceCollection();
-            const string connectionName = "connection-name-test";
-            var baseAddress = new Uri("rabbitmq://localhost");
-
-            var inMemoryHostBuilder = new InMemoryHostBuilder(services, connectionName, baseAddress);
-
-            Assert.Same(services, inMemoryHostBuilder.Services);
-            Assert.Equal(connectionName, inMemoryHostBuilder.ConnectionName);
-
-            Assert.Contains(services, item =>
-                item.Lifetime == ServiceLifetime.Singleton &&
-                item.ServiceType == typeof(IBusHostFactory) &&
-                item.ImplementationInstance == inMemoryHostBuilder);
-
-            inMemoryHostBuilder.UseHostAccessor();
-
-            using (var serviceProvider = services.BuildServiceProvider())
-            {
-                var hostAccessor = serviceProvider.GetRequiredService<IHostAccessor>();
-
-                var inMemoryHostBefore = hostAccessor.GetHost<IInMemoryHost>(connectionName);
-                Assert.Null(inMemoryHostBefore);
-
-                var busControl = inMemoryHostBuilder.Create(serviceProvider);
-                Assert.NotNull(busControl);
-
-                var inMemoryHostAfter = hostAccessor.GetHost<IInMemoryHost>(connectionName);
-                Assert.NotNull(inMemoryHostAfter);
-                Assert.Equal(baseAddress, inMemoryHostAfter.Address);
-            }
-        }
-
-        /// <summary />
-        [Fact]
-        public void AddReceiveEndpoint_GivenConfigurator_ThenValid()
-        {
-            var services = new ServiceCollection();
-            const string connectionName = "connection-name-test";
-            var baseAddress = new Uri("rabbitmq://localhost");
-
-            var inMemoryHostBuilder = new InMemoryHostBuilder(services, connectionName, baseAddress);
-
-            var endpointConfiguratorWasCalled = false;
-            inMemoryHostBuilder.AddReceiveEndpoint("queue-name-test", (IInMemoryReceiveEndpointBuilder builder) =>
-            {
-                Assert.Same(services, builder.Services);
-
-                builder.AddConfigurator((host, endpointConfigurator, serviceProvider) =>
-                {
-                    endpointConfiguratorWasCalled = true;
-                    Assert.Equal(baseAddress, host.Address);
-                });
-            });
-
-            using (var serviceProvider = services.BuildServiceProvider())
-            {
-                var busControl = inMemoryHostBuilder.Create(serviceProvider);
-                Assert.NotNull(busControl);
-                Assert.True(endpointConfiguratorWasCalled);
-            }
-        }
-
-        /// <summary />
-        [Fact]
-        public async Task UseServiceScope_ThenValid()
-        {
-            await UseServiceScope(true).ConfigureAwait(false);
-            _output.WriteLine(string.Empty);
-            await UseServiceScope(false).ConfigureAwait(false);
-        }
+        private readonly ITestOutputHelper _output;
 
         private async Task UseServiceScope(bool useServiceScope)
         {
@@ -177,7 +104,8 @@ namespace MassTransit.Extensions.Hosting.Tests
                     {
                         busFactory.UseInlineFilter(async (context, next) =>
                         {
-                            var hasPayloadInline = context.TryGetPayload<IServiceProvider>(out var serviceProviderInline);
+                            var hasPayloadInline =
+                                context.TryGetPayload<IServiceProvider>(out var serviceProviderInline);
                             Assert.Equal(useServiceScope, hasPayloadInline);
                             if (useServiceScope)
                             {
@@ -192,11 +120,13 @@ namespace MassTransit.Extensions.Hosting.Tests
                             }
 
                             var consumerServiceProvider = serviceProviderInline ?? serviceProviderBuilder;
-                            var consumerScopeProvider = consumerServiceProvider.GetRequiredService<IConsumerScopeProvider>();
+                            var consumerScopeProvider =
+                                consumerServiceProvider.GetRequiredService<IConsumerScopeProvider>();
 
                             using (var scope = consumerScopeProvider.GetScope(context))
                             {
-                                var hasPayloadScope = scope.Context.TryGetPayload<IServiceProvider>(out var serviceProviderScope);
+                                var hasPayloadScope =
+                                    scope.Context.TryGetPayload<IServiceProvider>(out var serviceProviderScope);
                                 Assert.True(hasPayloadScope);
 
                                 if (useServiceScope)
@@ -258,5 +188,79 @@ namespace MassTransit.Extensions.Hosting.Tests
             Assert.True(inlineFilterWasCalled);
         }
 
+        /// <summary />
+        [Fact]
+        public void AddReceiveEndpoint_GivenConfigurator_ThenValid()
+        {
+            var services = new ServiceCollection();
+            const string connectionName = "connection-name-test";
+            var baseAddress = new Uri("rabbitmq://localhost");
+
+            var inMemoryHostBuilder = new InMemoryHostBuilder(services, connectionName, baseAddress);
+
+            var endpointConfiguratorWasCalled = false;
+            inMemoryHostBuilder.AddReceiveEndpoint("queue-name-test", (IInMemoryReceiveEndpointBuilder builder) =>
+            {
+                Assert.Same(services, builder.Services);
+
+                builder.AddConfigurator((host, endpointConfigurator, serviceProvider) =>
+                {
+                    endpointConfiguratorWasCalled = true;
+                    Assert.Equal(baseAddress, host.Address);
+                });
+            });
+
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                var busControl = inMemoryHostBuilder.Create(serviceProvider);
+                Assert.NotNull(busControl);
+                Assert.True(endpointConfiguratorWasCalled);
+            }
+        }
+
+        /// <summary />
+        [Fact]
+        public void Create_ThenValid()
+        {
+            var services = new ServiceCollection();
+            const string connectionName = "connection-name-test";
+            var baseAddress = new Uri("rabbitmq://localhost");
+
+            var inMemoryHostBuilder = new InMemoryHostBuilder(services, connectionName, baseAddress);
+
+            Assert.Same(services, inMemoryHostBuilder.Services);
+            Assert.Equal(connectionName, inMemoryHostBuilder.ConnectionName);
+
+            Assert.Contains(services, item =>
+                item.Lifetime == ServiceLifetime.Singleton &&
+                item.ServiceType == typeof(IBusHostFactory) &&
+                item.ImplementationInstance == inMemoryHostBuilder);
+
+            inMemoryHostBuilder.UseHostAccessor();
+
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                var hostAccessor = serviceProvider.GetRequiredService<IHostAccessor>();
+
+                var inMemoryHostBefore = hostAccessor.GetHost<IInMemoryHost>(connectionName);
+                Assert.Null(inMemoryHostBefore);
+
+                var busControl = inMemoryHostBuilder.Create(serviceProvider);
+                Assert.NotNull(busControl);
+
+                var inMemoryHostAfter = hostAccessor.GetHost<IInMemoryHost>(connectionName);
+                Assert.NotNull(inMemoryHostAfter);
+                Assert.Equal(baseAddress, inMemoryHostAfter.Address);
+            }
+        }
+
+        /// <summary />
+        [Fact]
+        public async Task UseServiceScope_ThenValid()
+        {
+            await UseServiceScope(true).ConfigureAwait(false);
+            _output.WriteLine(string.Empty);
+            await UseServiceScope(false).ConfigureAwait(false);
+        }
     }
 }

@@ -1,6 +1,7 @@
 #region Copyright Preamble
+
 // 
-//    Copyright @ 2018 NCode Group
+//    Copyright @ 2019 NCode Group
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -13,6 +14,7 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
 #endregion
 
 using Microsoft.Extensions.DependencyInjection;
@@ -26,47 +28,32 @@ namespace MassTransit.Extensions.Hosting.Tests
     {
         /// <summary />
         [Fact]
-        public void GetHost_WhenSingle_GivenValid_ThenSuccess()
+        public void GetHost_WhenDuplicateName_GivenValid_ThenFirst()
         {
-            var mockHost = new Mock<IHost>(MockBehavior.Strict);
+            var mockHost1 = new Mock<IHost>(MockBehavior.Strict);
+            var mockHost2 = new Mock<IHost>(MockBehavior.Strict);
 
             var services = new ServiceCollection();
             services.AddTransient<HostAccessor>();
+
             services.AddSingleton<IHostAccessor<IHost>>(new HostAccessor<IHost>
             {
                 ConnectionName = "test",
-                Host = mockHost.Object
+                Host = mockHost1.Object
+            });
+
+            services.AddSingleton<IHostAccessor<IHost>>(new HostAccessor<IHost>
+            {
+                ConnectionName = "test",
+                Host = mockHost2.Object
             });
 
             using (var serviceProvider = services.BuildServiceProvider())
             {
                 var hostAccessor = serviceProvider.GetRequiredService<HostAccessor>();
 
-                var host = hostAccessor.GetHost<IHost>("test");
-                Assert.Same(mockHost.Object, host);
-            }
-        }
-
-        /// <summary />
-        [Fact]
-        public void GetHost_WhenSingle_GivenInvalid_ThenNull()
-        {
-            var mockHost = new Mock<IHost>(MockBehavior.Strict);
-
-            var services = new ServiceCollection();
-            services.AddTransient<HostAccessor>();
-            services.AddSingleton<IHostAccessor<IHost>>(new HostAccessor<IHost>
-            {
-                ConnectionName = "test",
-                Host = mockHost.Object
-            });
-
-            using (var serviceProvider = services.BuildServiceProvider())
-            {
-                var hostAccessor = serviceProvider.GetRequiredService<HostAccessor>();
-
-                var host = hostAccessor.GetHost<IHost>("other");
-                Assert.Null(host);
+                var host1 = hostAccessor.GetHost<IHost>("test");
+                Assert.Same(mockHost1.Object, host1);
             }
         }
 
@@ -106,34 +93,48 @@ namespace MassTransit.Extensions.Hosting.Tests
 
         /// <summary />
         [Fact]
-        public void GetHost_WhenDuplicateName_GivenValid_ThenFirst()
+        public void GetHost_WhenSingle_GivenInvalid_ThenNull()
         {
-            var mockHost1 = new Mock<IHost>(MockBehavior.Strict);
-            var mockHost2 = new Mock<IHost>(MockBehavior.Strict);
+            var mockHost = new Mock<IHost>(MockBehavior.Strict);
 
             var services = new ServiceCollection();
             services.AddTransient<HostAccessor>();
-
             services.AddSingleton<IHostAccessor<IHost>>(new HostAccessor<IHost>
             {
                 ConnectionName = "test",
-                Host = mockHost1.Object
-            });
-
-            services.AddSingleton<IHostAccessor<IHost>>(new HostAccessor<IHost>
-            {
-                ConnectionName = "test",
-                Host = mockHost2.Object
+                Host = mockHost.Object
             });
 
             using (var serviceProvider = services.BuildServiceProvider())
             {
                 var hostAccessor = serviceProvider.GetRequiredService<HostAccessor>();
 
-                var host1 = hostAccessor.GetHost<IHost>("test");
-                Assert.Same(mockHost1.Object, host1);
+                var host = hostAccessor.GetHost<IHost>("other");
+                Assert.Null(host);
             }
         }
 
+        /// <summary />
+        [Fact]
+        public void GetHost_WhenSingle_GivenValid_ThenSuccess()
+        {
+            var mockHost = new Mock<IHost>(MockBehavior.Strict);
+
+            var services = new ServiceCollection();
+            services.AddTransient<HostAccessor>();
+            services.AddSingleton<IHostAccessor<IHost>>(new HostAccessor<IHost>
+            {
+                ConnectionName = "test",
+                Host = mockHost.Object
+            });
+
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                var hostAccessor = serviceProvider.GetRequiredService<HostAccessor>();
+
+                var host = hostAccessor.GetHost<IHost>("test");
+                Assert.Same(mockHost.Object, host);
+            }
+        }
     }
 }

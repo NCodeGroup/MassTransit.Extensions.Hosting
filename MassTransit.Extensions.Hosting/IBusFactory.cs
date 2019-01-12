@@ -19,14 +19,19 @@
 
 using System;
 
-namespace Example.TopshelfHost
+namespace MassTransit.Extensions.Hosting
 {
-    public interface IExampleMessage
+    /// <summary>
+    /// Provides a factory method to configure and create bus instances.
+    /// </summary>
+    public interface IBusFactory<out TConfigurator>
+        where TConfigurator : class, IBusFactoryConfigurator
     {
-        Guid CorrelationId { get; }
-
-        string StringData { get; }
-
-        DateTime DateTimeData { get; }
+        /// <summary>
+        /// Configure and create a bus instance.
+        /// </summary>
+        /// <param name="configure">The configuration callback to configure the bus.</param>
+        /// <returns><see cref="IBusControl"/></returns>
+        IBusControl Create(Action<TConfigurator> configure);
     }
 }
