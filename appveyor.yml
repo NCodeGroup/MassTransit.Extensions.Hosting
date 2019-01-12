@@ -1,3 +1,13 @@
 image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
+
+cache:
+- '%USERPROFILE%\.nuget\packages'
+- '%LocalAppData%\NuGet\v3-cache'
+
+before_build:
+- cmd: msbuild /t:restore /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+artifacts:
+- path: '**\MassTransit.Extensions.Hosting.*.nupkg'
