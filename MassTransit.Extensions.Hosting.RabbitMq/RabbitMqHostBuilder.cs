@@ -18,12 +18,15 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MassTransit.RabbitMqTransport;
 using MassTransit.RabbitMqTransport.Configurators;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MassTransit.Extensions.Hosting.RabbitMq
 {
@@ -88,8 +91,8 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         BusHostBuilder<IRabbitMqHost, IRabbitMqBusFactoryConfigurator>,
         IRabbitMqHostBuilder
     {
-        private readonly IRabbitMqHostConfigurator _hostConfigurator;
-        private readonly RabbitMqHostSettings _settings;
+        private readonly IList<Action<IRabbitMqHostConfigurator>> _hostConfiguratorActions = new List<Action<IRabbitMqHostConfigurator>>();
+        private readonly Func<IServiceProvider, RabbitMqHostConfigurator> _hostConfiguratorFactory;
 
         private RabbitMqHostBuilder(IServiceCollection services, string connectionName)
             : base(services, connectionName)
@@ -109,10 +112,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             if (hostAddress == null)
                 throw new ArgumentNullException(nameof(hostAddress));
 
-            var hostConfigurator = new RabbitMqHostConfigurator(hostAddress, connectionName);
-
-            _hostConfigurator = hostConfigurator;
-            _settings = hostConfigurator.Settings;
+            _hostConfiguratorFactory = serviceProvider => new RabbitMqHostConfigurator(hostAddress, connectionName);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// <param name="host">The host name of the RabbitMq broker.</param>
         /// <param name="port">The port to connect to on the RabbitMq broker.</param>
         /// <param name="virtualHost">The virtual host to use.</param>
-        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, string host, ushort port, string virtualHost)
+        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, string host, int port, string virtualHost)
             : this(services, connectionName)
         {
             if (host == null)
@@ -131,51 +131,82 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             if (virtualHost == null)
                 throw new ArgumentNullException(nameof(virtualHost));
 
-            var hostConfigurator = new RabbitMqHostConfigurator(host, virtualHost, port, connectionName);
+            _hostConfiguratorFactory = serviceProvider => new RabbitMqHostConfigurator(host, virtualHost, (ushort)port, connectionName);
+        }
 
-            _hostConfigurator = hostConfigurator;
-            _settings = hostConfigurator.Settings;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RabbitMqHostBuilder"/> class.
+        /// </summary>
+        /// <param name="services"><see cref="IServiceCollection"/></param>
+        /// <param name="configuration">The <see cref="IConfiguration"/> being bound.</param>
+        public RabbitMqHostBuilder(IServiceCollection services, IConfiguration configuration)
+            : this(services, configuration["ConnectionName"])
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            services.AddOptions();
+            services.Configure<RabbitMqOptions>(ConnectionName, configuration);
+
+            _hostConfiguratorFactory = serviceProvider =>
+            {
+                var optionsSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<RabbitMqOptions>>();
+                var options = optionsSnapshot.Get(ConnectionName);
+
+                var hostConfigurator = new RabbitMqHostConfigurator(options.HostAddress, ConnectionName);
+
+                if (options.Heartbeat.HasValue)
+                    hostConfigurator.Heartbeat(options.Heartbeat.Value);
+
+                if (!string.IsNullOrEmpty(options.Username))
+                    hostConfigurator.Username(options.Username);
+
+                if (!string.IsNullOrEmpty(options.Password))
+                    hostConfigurator.Password(options.Password);
+
+                return hostConfigurator;
+            };
         }
 
         /// <inheritdoc />
         public virtual IRabbitMqHostBuilder UseUsername(string username)
         {
-            _hostConfigurator.Username(username);
+            _hostConfiguratorActions.Add(configure => configure.Username(username));
             return this;
         }
 
         /// <inheritdoc />
         public virtual IRabbitMqHostBuilder UsePassword(string password)
         {
-            _hostConfigurator.Password(password);
+            _hostConfiguratorActions.Add(configure => configure.Password(password));
             return this;
         }
 
         /// <inheritdoc />
         public virtual IRabbitMqHostBuilder UseHeartbeat(ushort heartbeat)
         {
-            _hostConfigurator.Heartbeat(heartbeat);
+            _hostConfiguratorActions.Add(configure => configure.Heartbeat(heartbeat));
             return this;
         }
 
         /// <inheritdoc />
         public virtual IRabbitMqHostBuilder UsePublisherConfirmation(bool enable = true)
         {
-            _hostConfigurator.PublisherConfirmation = enable;
+            _hostConfiguratorActions.Add(configure => configure.PublisherConfirmation = enable);
             return this;
         }
 
         /// <inheritdoc />
         public virtual IRabbitMqHostBuilder UseSsl(Action<IRabbitMqSslConfigurator> configureSsl)
         {
-            _hostConfigurator.UseSsl(configureSsl);
+            _hostConfiguratorActions.Add(configure => configure.UseSsl(configureSsl));
             return this;
         }
 
         /// <inheritdoc />
         public virtual IRabbitMqHostBuilder UseCluster(Action<IRabbitMqClusterConfigurator> configureCluster)
         {
-            _hostConfigurator.UseCluster(configureCluster);
+            _hostConfiguratorActions.Add(configure => configure.UseCluster(configureCluster));
             return this;
         }
 
@@ -194,7 +225,13 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             var busFactory = serviceProvider.GetRequiredService<IBusFactory<IRabbitMqBusFactoryConfigurator>>();
             var busControl = busFactory.Create(busFactoryConfigurator =>
             {
-                var host = busFactoryConfigurator.Host(_settings);
+                var hostConfigurator = _hostConfiguratorFactory(serviceProvider);
+                foreach (var hostConfiguratorAction in _hostConfiguratorActions)
+                {
+                    hostConfiguratorAction(hostConfigurator);
+                }
+
+                var host = busFactoryConfigurator.Host(hostConfigurator.Settings);
 
                 Configure(host, busFactoryConfigurator, serviceProvider);
             });

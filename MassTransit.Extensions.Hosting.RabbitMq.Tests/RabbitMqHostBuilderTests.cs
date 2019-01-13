@@ -18,9 +18,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit.RabbitMqTransport;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -42,12 +44,13 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
         /// <summary />
         [Fact]
-        public async Task UseRabbitMq_GivenOptions_ThenValid()
+        public async Task UseRabbitMq_GivenStaticOptions_ThenValid()
         {
             var options = new RabbitMqOptions
             {
                 ConnectionName = "connection-name-test",
                 Host = "127.0.0.1",
+                Port = 5672,
                 VirtualHost = "/",
                 Username = "username-test",
                 Password = "password-test",
@@ -101,7 +104,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             services.AddMassTransit(builder =>
             {
-                builder.UseRabbitMq(options, null);
+                builder.UseRabbitMq(options);
             });
 
             using (var serviceProvider = services.BuildServiceProvider())
@@ -109,6 +112,104 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
                 var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
                 await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
+
+                var bus = busManager.GetBus(options.ConnectionName);
+                Assert.NotNull(bus);
+
+                await busManager.StopAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+
+            mockRabbitMqHost.Verify();
+            mockRabbitMqBusFactoryConfigurator.Verify();
+            mockRabbitMqBusFactory.Verify();
+            mockBusControl.Verify();
+            mockBusHandle.Verify();
+        }
+
+        /// <summary />
+        [Fact]
+        public async Task UseRabbitMq_GivenConfigurationOptions_ThenValid()
+        {
+            var options = new RabbitMqOptions
+            {
+                ConnectionName = "connection-name-test",
+                Host = "127.0.0.1",
+                Port = 5672,
+                VirtualHost = "/",
+                Username = "username-test",
+                Password = "password-test",
+            };
+
+            var configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.AddInMemoryCollection(new[]
+            {
+                KeyValuePair.Create("MassTransit:RabbitMq:ConnectionName", options.ConnectionName),
+                KeyValuePair.Create("MassTransit:RabbitMq:HostAddress", options.HostAddress.ToString()),
+                KeyValuePair.Create("MassTransit:RabbitMq:Username", options.Username),
+                KeyValuePair.Create("MassTransit:RabbitMq:Password", options.Password),
+            });
+            var configurationRoot = configurationBuilder.Build();
+            var configuration = configurationRoot.GetSection("MassTransit:RabbitMq");
+
+            var mockBusHandle = new Mock<BusHandle>(MockBehavior.Strict);
+            var mockBusControl = new Mock<IBusControl>(MockBehavior.Strict);
+            var mockRabbitMqBusFactory = new Mock<IBusFactory<IRabbitMqBusFactoryConfigurator>>(MockBehavior.Strict);
+            var mockRabbitMqBusFactoryConfigurator = new Mock<IRabbitMqBusFactoryConfigurator>(MockBehavior.Strict);
+            var mockRabbitMqHost = new Mock<IRabbitMqHost>(MockBehavior.Strict);
+
+            mockBusControl
+                .Setup(_ => _.StartAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(mockBusHandle.Object)
+                .Verifiable();
+
+            mockBusControl
+                .Setup(_ => _.StopAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            mockRabbitMqBusFactory
+                .Setup(_ => _.Create(It.IsAny<Action<IRabbitMqBusFactoryConfigurator>>()))
+                .Callback((Action<IRabbitMqBusFactoryConfigurator> configure) => configure(mockRabbitMqBusFactoryConfigurator.Object))
+                .Returns(mockBusControl.Object)
+                .Verifiable();
+
+            mockRabbitMqBusFactoryConfigurator
+                .Setup(_ => _.Host(It.IsAny<RabbitMqHostSettings>()))
+                .Callback((RabbitMqHostSettings settings) =>
+                {
+                    Assert.Equal(options.ConnectionName, settings.ClientProvidedName);
+                    Assert.Equal(options.Host, settings.Host);
+                    Assert.Equal(options.Port, settings.Port);
+                    Assert.Equal(options.Heartbeat.GetValueOrDefault(), settings.Heartbeat);
+                    Assert.Equal(options.VirtualHost, settings.VirtualHost);
+                    Assert.Equal(options.Username, settings.Username);
+                    Assert.Equal(options.Password, settings.Password);
+                })
+                .Returns(mockRabbitMqHost.Object)
+                .Verifiable();
+
+            var services = new ServiceCollection();
+            services.AddSingleton(mockRabbitMqBusFactory.Object);
+
+            services.AddLogging(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Trace);
+                builder.AddXUnit(_output);
+            });
+
+            services.AddMassTransit(builder =>
+            {
+                builder.UseRabbitMq(configuration);
+            });
+
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                var busManager = serviceProvider.GetRequiredService<IBusManager>();
+
+                await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
+
+                var bus = busManager.GetBus(options.ConnectionName);
+                Assert.NotNull(bus);
 
                 await busManager.StopAsync(CancellationToken.None).ConfigureAwait(false);
             }
@@ -188,6 +289,9 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
                 await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
 
+                var bus = busManager.GetBus(connectionName);
+                Assert.NotNull(bus);
+
                 await busManager.StopAsync(CancellationToken.None).ConfigureAwait(false);
             }
 
@@ -264,6 +368,9 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
                 await busManager.StartAsync(CancellationToken.None).ConfigureAwait(false);
 
+                var bus = busManager.GetBus(connectionName);
+                Assert.NotNull(bus);
+
                 await busManager.StopAsync(CancellationToken.None).ConfigureAwait(false);
             }
 
@@ -291,7 +398,7 @@ namespace MassTransit.Extensions.Hosting.RabbitMq.Tests
 
             services.AddMassTransit(builder =>
             {
-                builder.UseRabbitMq(connectionName, hostAddress, null);
+                builder.UseRabbitMq(connectionName, hostAddress);
             });
 
             Assert.Contains(services, item =>

@@ -137,21 +137,22 @@ public void ConfigureServices(IServiceCollection services)
 
 ### Step 6) Bus Manager
 ```csharp
-public Task Run(IServiceProvider serviceProvider)
+public async Task Run(IServiceProvider serviceProvider)
 {
     var busManager = serviceProvider.GetRequiredService<IBusManager>();
 
     // start all bus instances
-    busManager.StartAsync();
+    await busManager.StartAsync().ConfigureAwait(false);
 
     // get a reference to a named bus instance
+    // and publish a message
     IBus bus = busManager.GetBus("connection-name-1");
-    bus.Publish(/* ... */);
+    await bus.Publish(/* ... */).ConfigureAwait(false);
 
     // ...
 
     // stop all bus instances
-    busManager.StopAsync();
+    await busManager.StopAsync().ConfigureAwait(false);
 }
 ```
 
@@ -188,12 +189,12 @@ public static class Program
 
         // optionally use configuration for any settings
         var configuration = context.Configuration;
-        var rabbitMqOptions = configuration.GetSection("MassTransit:RabbitMq").Get<RabbitMqOptions>();
 
         // the following adds IBusManager which is also an IHostedService that is started/stopped by HostBuilder
         services.AddMassTransit(busBuilder =>
         {
-            busBuilder.UseRabbitMq(rabbitMqOptions, hostBuilder =>
+            // configure RabbitMQ
+            busBuilder.UseRabbitMq(configuration.GetSection("MassTransit:RabbitMq"), hostBuilder =>
             {
                 // use scopes for all downstream filters and consumers
                 // i.e. per-request lifetime
@@ -295,13 +296,11 @@ public static class Program
             builder.AddDebug();
         });
 
-        // configure MassTransit
+        // the following adds IBusManager which is also an IHostedService that is started/stopped down below
         services.AddMassTransit(busBuilder =>
         {
-            // load the RabbitMq options
-            var rabbitMqOptions = configuration.GetSection("MassTransit:RabbitMq").Get<RabbitMqOptions>();
-
-            busBuilder.UseRabbitMq(rabbitMqOptions, hostBuilder =>
+            // configure RabbitMQ
+            busBuilder.UseRabbitMq(configuration.GetSection("MassTransit:RabbitMq"), hostBuilder =>
             {
                 hostBuilder.UseServiceScope();
 
@@ -350,6 +349,9 @@ public static class Program
     }
 }
 ```
+
+## Release Notes
+* v1.0.5 - Added the ability to bind RabbitMq configuration options.
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].
