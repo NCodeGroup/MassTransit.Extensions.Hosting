@@ -61,10 +61,8 @@ namespace Example.ConsoleHost
             // the following adds IBusManager which is also an IHostedService that is started/stopped by HostBuilder
             services.AddMassTransit(busBuilder =>
             {
-                // load the RabbitMq options
-                var rabbitMqOptions = configuration.GetSection("MassTransit:RabbitMq").Get<RabbitMqOptions>();
-
-                busBuilder.UseRabbitMq(rabbitMqOptions, hostBuilder =>
+                // configure RabbitMQ
+                busBuilder.UseRabbitMq(configuration.GetSection("MassTransit:RabbitMq"), hostBuilder =>
                 {
                     // use scopes for all downstream filters and consumers
                     // i.e. per-request lifetime

@@ -33,15 +33,3 @@ deploy:
     APPVEYOR_REPO_TAG: true
   api_key:
     secure: pzvKbbudjmurey9no+lmNxd6Ns4zlxtA53dWSTIzjJO2VwKXzWScLTkjUK3s87YO
-- provider: GitHub
-  on:
-    APPVEYOR_REPO_TAG: true
-  auth_token:
-    secure: MSUVTCMCvD3SXQ6unyvSaBDi0uSd+hoE9bil07nvHeF68LOiw6vn04VnW8lo85JZ
-  tag: $(APPVEYOR_REPO_TAG_NAME)
-  release: $(APPVEYOR_REPO_TAG_NAME)
-  description: "CI build of the latest master branch by Appveyor"
-  artifact: Packages
-  draft: false
-  prerelease: false
-  force_update: true

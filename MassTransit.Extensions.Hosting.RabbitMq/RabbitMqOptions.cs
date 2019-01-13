@@ -17,17 +17,26 @@
 
 #endregion
 
+using System;
+
 namespace MassTransit.Extensions.Hosting.RabbitMq
 {
     /// <summary>
-    /// Contains the options for configuring a RabbitMq host.
+    /// Contains the options for configuring a RabbitMQ host.
     /// </summary>
     public class RabbitMqOptions
     {
+        private static readonly char[] PathSeparators = { '/' };
+
+        private Uri _hostAddress;
+        private string _host;
+        private int? _port;
+        private string _virtualHost;
+
         /// <summary>
-        /// Gets the default port for RabbitMq.
+        /// Gets the default port for RabbitMQ.
         /// </summary>
-        public const ushort DefaultPort = 5672;
+        public const int DefaultPort = 5672;
 
         /// <summary>
         /// Gets or sets the client-provided connection name.
@@ -35,24 +44,63 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         public string ConnectionName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the RabbitMq host to connect to (should be a valid hostname).
+        /// Gets or sets the RabbitMQ address to connect to (rabbitmq://host:port/vhost).
         /// </summary>
-        public string Host { get; set; }
+        public Uri HostAddress
+        {
+            get => _hostAddress ?? (_hostAddress = FormatHostAddress());
+            set
+            {
+                _hostAddress = value;
+                _host = value?.Host;
+                _port = value?.IsDefaultPort ?? true ? (int?)null : value.Port;
+                _virtualHost = GetVirtualHost(value);
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the RabbitMq port to connect to.
+        /// Gets or sets the RabbitMQ host to connect to (should be a valid hostname).
         /// </summary>
-        public ushort Port { get; set; } = DefaultPort;
+        public string Host
+        {
+            get => _host;
+            set
+            {
+                _hostAddress = null;
+                _host = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the RabbitMQ port to connect to.
+        /// </summary>
+        public int? Port
+        {
+            get => _port;
+            set
+            {
+                _hostAddress = null;
+                _port = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the virtual host for the connection.
+        /// </summary>
+        public string VirtualHost
+        {
+            get => _virtualHost;
+            set
+            {
+                _hostAddress = null;
+                _virtualHost = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the heartbeat interval (in seconds) to keep the host connection alive.
         /// </summary>
         public ushort? Heartbeat { get; set; }
-
-        /// <summary>
-        /// Gets or sets the virtual host for the connection.
-        /// </summary>
-        public string VirtualHost { get; set; }
 
         /// <summary>
         /// Gets or sets the username for connecting to the host.
@@ -63,5 +111,33 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// Gets or sets the password for connection to the host.
         /// </summary>
         public string Password { get; set; }
+
+        private static string GetVirtualHost(Uri address)
+        {
+            var path = address?.AbsolutePath;
+            if (string.IsNullOrEmpty(path) || path == "/")
+                return "/";
+
+            var segments = path.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
+            return segments.Length == 0 ? "/" : segments[0];
+        }
+
+        private Uri FormatHostAddress()
+        {
+            var virtualHost = VirtualHost;
+
+            var builder = new UriBuilder
+            {
+                Scheme = "rabbitmq",
+                Host = Host,
+                Port = Port ?? 0,
+                Path = string.IsNullOrEmpty(virtualHost) || virtualHost == "/"
+                    ? "/"
+                    : $"/{virtualHost.Trim('/')}"
+            };
+
+            return builder.Uri;
+        }
+
     }
 }
