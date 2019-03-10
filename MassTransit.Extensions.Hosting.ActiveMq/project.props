@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+
+    <Description>MassTransit ActiveMQ configuration extensions using Microsoft.Extensions.Hosting.IHostedService and Microsoft.Extensions.DependencyInjection.</Description>
+    <PackageTags>ActiveMq;MassTransit;IHostedService;Bus;Hosting</PackageTags>
+
+  </PropertyGroup>
+</Project>

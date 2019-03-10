@@ -27,6 +27,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Host
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Hosting.RabbitMq.Tests", "MassTransit.Extensions.Hosting.RabbitMq.Tests\MassTransit.Extensions.Hosting.RabbitMq.Tests.csproj", "{812A83B2-9017-4CF8-AD86-61EAA61E89CE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transports", "Transports", "{B86C5291-F3F8-407C-AB3F-606E5FEA5798}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{9E521905-C573-4CA2-A1C4-3871B5AB87B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MassTransit", "MassTransit", "{5E3C097C-AF1A-4313-B1B4-2D6EF1187532}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Hosting.ActiveMq", "MassTransit.Extensions.Hosting.ActiveMq\MassTransit.Extensions.Hosting.ActiveMq.csproj", "{981E5182-F178-4E2E-BFAE-645ACBD54B11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.Extensions.Hosting.ActiveMq.Tests", "MassTransit.Extensions.Hosting.ActiveMq.Tests\MassTransit.Extensions.Hosting.ActiveMq.Tests.csproj", "{6562603D-E02B-42A2-8468-729CD33CF8DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,9 +67,27 @@ Global
 		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{812A83B2-9017-4CF8-AD86-61EAA61E89CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{981E5182-F178-4E2E-BFAE-645ACBD54B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{981E5182-F178-4E2E-BFAE-645ACBD54B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{981E5182-F178-4E2E-BFAE-645ACBD54B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{981E5182-F178-4E2E-BFAE-645ACBD54B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6562603D-E02B-42A2-8468-729CD33CF8DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6562603D-E02B-42A2-8468-729CD33CF8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6562603D-E02B-42A2-8468-729CD33CF8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6562603D-E02B-42A2-8468-729CD33CF8DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{10FAFA75-EDD4-48B6-8D83-00550576F3C5} = {5E3C097C-AF1A-4313-B1B4-2D6EF1187532}
+		{D194AAF6-7660-4851-9C34-0FCD33911855} = {B86C5291-F3F8-407C-AB3F-606E5FEA5798}
+		{AF75C53C-228A-4B85-9DDC-E9BB2E64404E} = {9E521905-C573-4CA2-A1C4-3871B5AB87B0}
+		{2F2CF5F6-51C7-4D70-A059-FCBD0BD4DCB1} = {9E521905-C573-4CA2-A1C4-3871B5AB87B0}
+		{0AED767E-D526-4273-A7CA-1032097D758B} = {5E3C097C-AF1A-4313-B1B4-2D6EF1187532}
+		{812A83B2-9017-4CF8-AD86-61EAA61E89CE} = {B86C5291-F3F8-407C-AB3F-606E5FEA5798}
+		{981E5182-F178-4E2E-BFAE-645ACBD54B11} = {B86C5291-F3F8-407C-AB3F-606E5FEA5798}
+		{6562603D-E02B-42A2-8468-729CD33CF8DD} = {B86C5291-F3F8-407C-AB3F-606E5FEA5798}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FF969A4E-80CE-4FEB-A57B-F1FC8639AAB9}
