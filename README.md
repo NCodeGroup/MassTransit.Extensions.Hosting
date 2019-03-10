@@ -11,8 +11,8 @@
 [![NuGet Version](https://img.shields.io/nuget/v/MassTransit.Extensions.Hosting.svg?style=flat)](https://www.nuget.org/packages/MassTransit.Extensions.Hosting/)
 
 This library provides extensions for [MassTransit] to support:
-* Hosting with [Microsoft.Extensions.Hosting]
-* Dependency Injection with [Microsoft.Extensions.DependencyInjection]
+* Hosting with [Microsoft.Extensions.Hosting] (i.e. `IHostedService`)
+* Dependency Injection with [Microsoft.Extensions.DependencyInjection] (i.e. `IServiceProvider`)
 
 This library was designed to make no assumptions how to configure MassTransit bus instances and provides the developer with flexible hosting implementation options.
 
@@ -40,6 +40,12 @@ Also the `MassTransit.Host` is not usable in other hosting environments such as 
 
 ## Proposed Solution
 This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_ for building MassTransit applications. Other than using the hosting and dependency injection abstractions, this library makes no assumptions on DI containers, logging providers, configuration providers, and the hosting environment.
+
+## Features
+* Fluent configuration interfaces
+* No assumptions on configuration (i.e. the developer is in full control)
+* Access to the existing masstransit configuration interfaces (i.e. `IBusFactoryConfigurator`)
+* Ability to retrieve the bus host by connection name after startup
 
 ## Usage
 
@@ -351,7 +357,8 @@ public static class Program
 ```
 
 ## Release Notes
-* v1.0.5 - Added the ability to bind RabbitMq configuration options.
+* v1.0.5 - Added the ability to bind RabbitMq configuration options
+* v1.0.6 - Updated documentation
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].
