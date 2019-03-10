@@ -20,8 +20,9 @@ This library was designed to make no assumptions how to configure MassTransit bu
   * Provides extensions common to all MassTransit transports
   * Includes an in-memory bus
 
+Transport specific libraries:
 * `MassTransit.Extensions.Hosting.RabbitMq`
-  * Provides extensions specific to the RabbitMq transport
+* `MassTransit.Extensions.Hosting.ActiveMq`
 
 ## Problem Statement
 The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
@@ -44,15 +45,20 @@ This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_
 ## Features
 * Fluent configuration interfaces
 * No assumptions on configuration (i.e. the developer is in full control)
-* Access to the existing masstransit configuration interfaces (i.e. `IBusFactoryConfigurator`)
+* Access to the existing MassTransit configuration interfaces (i.e. `IBusFactoryConfigurator`)
 * Ability to retrieve the bus host by connection name after startup
+* Supports all the available MassTransit transports
 
 ## Usage
 
 ### Step 1) Add NuGet Package(s)
 > PM> Install-Package MassTransit.Extensions.Hosting
 > 
+> Then choose a transport...
+> 
 > PM> Install-Package MassTransit.Extensions.Hosting.RabbitMq
+> 
+> PM> Install-Package MassTransit.Extensions.Hosting.ActiveMq
 
 ### Step 2) Add MassTransit Services
 ```csharp
@@ -89,6 +95,15 @@ public void ConfigureServices(IServiceCollection services)
 
             // ...
         });
+
+        busBuilder.UseActiveMq("connection-name-3", "127.0.0.1", hostBuilder => 
+        {
+            hostBuilder.UseSsl();
+            hostBuilder.UseCredentials("guest", "guest");
+
+            // ...
+        });
+
     });
 }
 ```
@@ -359,6 +374,7 @@ public static class Program
 ## Release Notes
 * v1.0.5 - Added the ability to bind RabbitMq configuration options
 * v1.0.6 - Updated documentation
+* v1.0.7 - Added ActiveMQ transport
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].

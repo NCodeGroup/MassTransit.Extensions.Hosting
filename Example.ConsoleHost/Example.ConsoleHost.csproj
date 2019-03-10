@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MassTransit.Extensions.Hosting.ActiveMq\MassTransit.Extensions.Hosting.ActiveMq.csproj" />
     <ProjectReference Include="..\MassTransit.Extensions.Hosting.RabbitMq\MassTransit.Extensions.Hosting.RabbitMq.csproj" />
     <ProjectReference Include="..\MassTransit.Extensions.Hosting\MassTransit.Extensions.Hosting.csproj" />
   </ItemGroup>

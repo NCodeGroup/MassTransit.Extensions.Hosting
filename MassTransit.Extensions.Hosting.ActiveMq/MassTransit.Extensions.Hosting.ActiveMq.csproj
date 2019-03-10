@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="NCode.ProjectSettings.Scaffold" Version="1.0.8">
             <PrivateAssets>All</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="MassTransit.RabbitMQ" Version="5.1.5" />
+        <PackageReference Include="MassTransit.ActiveMQ" Version="5.1.5" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
     </ItemGroup>
 

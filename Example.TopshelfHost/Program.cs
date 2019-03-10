@@ -99,6 +99,8 @@ namespace Example.TopshelfHost
                         endpointBuilder.AddConsumer<ExampleConsumer>();
                     });
                 });
+
+                // see `Example.ConsoleHost` for examples with other transports such as ActiveMq, etc.
             });
         }
 
