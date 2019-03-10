@@ -2,7 +2,7 @@
 <Project>
   <PropertyGroup>
 
-    <Description>.NET Core hosting and startup infrastructure for MassTransist RabbitMQ transport support using IHostedService.</Description>
+    <Description>MassTransit RabbitMQ configuration extensions using Microsoft.Extensions.Hosting.IHostedService and Microsoft.Extensions.DependencyInjection.</Description>
     <PackageTags>RabbitMq;MassTransit;IHostedService;Bus;Hosting</PackageTags>
 
   </PropertyGroup>
