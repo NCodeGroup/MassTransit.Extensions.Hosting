@@ -3,7 +3,7 @@
   <PropertyGroup>
 
     <Description>MassTransit ActiveMQ configuration extensions using Microsoft.Extensions.Hosting.IHostedService and Microsoft.Extensions.DependencyInjection.</Description>
-    <PackageTags>ActiveMq;MassTransit;IHostedService;Bus;Hosting</PackageTags>
+    <PackageTags>ActiveMQ;MassTransit;IHostedService;Bus;Hosting</PackageTags>
 
   </PropertyGroup>
 </Project>

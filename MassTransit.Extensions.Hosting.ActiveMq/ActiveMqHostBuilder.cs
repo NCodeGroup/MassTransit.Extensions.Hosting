@@ -76,7 +76,7 @@ namespace MassTransit.Extensions.Hosting.ActiveMq
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/></param>
         /// <param name="connectionName">The client-provided connection name.</param>
-        /// <param name="hostAddress">The URI host address of the RabbitMQ host (example: rabbitmq://host:port/vhost).</param>
+        /// <param name="hostAddress">The URI host address of the ActiveMQ host (example: activemq://host:port/).</param>
         public ActiveMqHostBuilder(IServiceCollection services, string connectionName, Uri hostAddress)
             : this(services, connectionName)
         {
@@ -108,9 +108,10 @@ namespace MassTransit.Extensions.Hosting.ActiveMq
         /// Initializes a new instance of the <see cref="ActiveMqHostBuilder"/> class.
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/></param>
+        /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> being bound.</param>
-        public ActiveMqHostBuilder(IServiceCollection services, IConfiguration configuration)
-            : this(services, configuration["ConnectionName"])
+        public ActiveMqHostBuilder(IServiceCollection services, string connectionName, IConfiguration configuration)
+            : this(services, connectionName)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));

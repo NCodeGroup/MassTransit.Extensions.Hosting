@@ -94,7 +94,8 @@ namespace MassTransit.Extensions.Hosting.ActiveMq
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            var hostBuilder = new ActiveMqHostBuilder(builder.Services, configuration);
+            var connectionName = configuration["ConnectionName"];
+            var hostBuilder = new ActiveMqHostBuilder(builder.Services, connectionName, configuration);
             hostConfigurator?.Invoke(hostBuilder);
         }
 

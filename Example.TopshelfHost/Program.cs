@@ -100,7 +100,7 @@ namespace Example.TopshelfHost
                     });
                 });
 
-                // see `Example.ConsoleHost` for examples with other transports such as ActiveMq, etc.
+                // see `Example.ConsoleHost` for examples with other transports such as ActiveMq, AmazonSqs, etc.
             });
         }
 
