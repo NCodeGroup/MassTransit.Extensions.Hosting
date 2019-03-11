@@ -3,7 +3,7 @@
   <PropertyGroup>
 
     <Description>MassTransit RabbitMQ configuration extensions using Microsoft.Extensions.Hosting.IHostedService and Microsoft.Extensions.DependencyInjection.</Description>
-    <PackageTags>RabbitMq;MassTransit;IHostedService;Bus;Hosting</PackageTags>
+    <PackageTags>RabbitMQ;MassTransit;IHostedService;Bus;Hosting</PackageTags>
 
   </PropertyGroup>
 </Project>

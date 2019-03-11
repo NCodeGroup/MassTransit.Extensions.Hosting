@@ -23,6 +23,7 @@ This library was designed to make no assumptions how to configure MassTransit bu
 Transport specific libraries:
 * `MassTransit.Extensions.Hosting.RabbitMq`
 * `MassTransit.Extensions.Hosting.ActiveMq`
+* `MassTransit.Extensions.Hosting.AmazonSqs`
 
 ## Problem Statement
 The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
@@ -100,6 +101,14 @@ public void ConfigureServices(IServiceCollection services)
         {
             hostBuilder.UseSsl();
             hostBuilder.UseCredentials("guest", "guest");
+
+            // ...
+        });
+
+        busBuilder.UseAmazonSqs("connection-name-4", hostBuilder => 
+        {
+            hostBuilder.UseRegion(RegionEndpoint.USEast1);
+            hostBuilder.UseCredentials(new EnvironmentVariablesAWSCredentials());
 
             // ...
         });
@@ -375,6 +384,7 @@ public static class Program
 * v1.0.5 - Added the ability to bind RabbitMq configuration options
 * v1.0.6 - Updated documentation
 * v1.0.7 - Added ActiveMQ transport
+* v1.0.8 - Added AmazonSQS transport
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].

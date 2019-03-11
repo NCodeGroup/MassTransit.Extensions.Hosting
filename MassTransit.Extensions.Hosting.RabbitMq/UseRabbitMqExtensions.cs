@@ -93,7 +93,8 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            var hostBuilder = new RabbitMqHostBuilder(builder.Services, configuration);
+            var connectionName = configuration["ConnectionName"];
+            var hostBuilder = new RabbitMqHostBuilder(builder.Services, connectionName, configuration);
             hostConfigurator?.Invoke(hostBuilder);
         }
 

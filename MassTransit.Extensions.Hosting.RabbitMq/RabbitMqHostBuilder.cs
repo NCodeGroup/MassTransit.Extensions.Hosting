@@ -138,9 +138,10 @@ namespace MassTransit.Extensions.Hosting.RabbitMq
         /// Initializes a new instance of the <see cref="RabbitMqHostBuilder"/> class.
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/></param>
+        /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> being bound.</param>
-        public RabbitMqHostBuilder(IServiceCollection services, IConfiguration configuration)
-            : this(services, configuration["ConnectionName"])
+        public RabbitMqHostBuilder(IServiceCollection services, string connectionName, IConfiguration configuration)
+            : this(services, connectionName)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));

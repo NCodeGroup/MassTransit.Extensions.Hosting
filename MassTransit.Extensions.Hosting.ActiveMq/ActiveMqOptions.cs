@@ -47,7 +47,7 @@ namespace MassTransit.Extensions.Hosting.ActiveMq
         public string ConnectionName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the ActiveMQ address to connect to (rabbitmq://host:port/vhost).
+        /// Gets or sets the ActiveMQ address to connect to (activemq://host:port/).
         /// </summary>
         public Uri HostAddress
         {

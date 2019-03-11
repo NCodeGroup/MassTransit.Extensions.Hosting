@@ -20,6 +20,7 @@
 using GreenPipes;
 using MassTransit.Extensions.Hosting;
 using MassTransit.Extensions.Hosting.ActiveMq;
+using MassTransit.Extensions.Hosting.AmazonSqs;
 using MassTransit.Extensions.Hosting.RabbitMq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -113,6 +114,16 @@ namespace Example.ConsoleHost
                 {
                     hostBuilder.UseServiceScope();
                     hostBuilder.AddReceiveEndpoint("example-queue-3", endpointBuilder =>
+                    {
+                        endpointBuilder.AddConsumer<ExampleConsumer>();
+                    });
+                });
+
+                // AmazonSQS
+                busBuilder.UseAmazonSqs(configuration.GetSection("MassTransit:AmazonSqs"), hostBuilder =>
+                {
+                    hostBuilder.UseServiceScope();
+                    hostBuilder.AddReceiveEndpoint("example-queue-4", endpointBuilder =>
                     {
                         endpointBuilder.AddConsumer<ExampleConsumer>();
                     });
