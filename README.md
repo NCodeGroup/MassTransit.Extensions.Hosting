@@ -60,6 +60,8 @@ This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_
 > PM> Install-Package MassTransit.Extensions.Hosting.RabbitMq
 > 
 > PM> Install-Package MassTransit.Extensions.Hosting.ActiveMq
+> 
+> PM> Install-Package MassTransit.Extensions.Hosting.AmazonSqs
 
 ### Step 2) Add MassTransit Services
 ```csharp
