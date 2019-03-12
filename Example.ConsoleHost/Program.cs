@@ -21,10 +21,12 @@ using GreenPipes;
 using MassTransit.Extensions.Hosting;
 using MassTransit.Extensions.Hosting.ActiveMq;
 using MassTransit.Extensions.Hosting.AmazonSqs;
+using MassTransit.Extensions.Hosting.AzureServiceBus;
 using MassTransit.Extensions.Hosting.RabbitMq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.ServiceBus;
 
 namespace Example.ConsoleHost
 {
@@ -124,6 +126,24 @@ namespace Example.ConsoleHost
                 {
                     hostBuilder.UseServiceScope();
                     hostBuilder.AddReceiveEndpoint("example-queue-4", endpointBuilder =>
+                    {
+                        endpointBuilder.AddConsumer<ExampleConsumer>();
+                    });
+                });
+
+                // AzureServiceBus
+                busBuilder.UseAzureServiceBus(configuration.GetSection("MassTransit:AzureServiceBus"), hostBuilder =>
+                {
+                    hostBuilder.UseServiceScope();
+
+                    hostBuilder.UseTokenProvider(TokenProvider.CreateSimpleWebTokenProvider("web-token-example"));
+
+                    hostBuilder.AddConfigurator(configureBus =>
+                    {
+                        configureBus.SelectBasicTier();
+                    });
+
+                    hostBuilder.AddReceiveEndpoint("example-queue-5", endpointBuilder =>
                     {
                         endpointBuilder.AddConsumer<ExampleConsumer>();
                     });

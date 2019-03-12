@@ -24,6 +24,7 @@ Transport specific libraries:
 * `MassTransit.Extensions.Hosting.RabbitMq`
 * `MassTransit.Extensions.Hosting.ActiveMq`
 * `MassTransit.Extensions.Hosting.AmazonSqs`
+* `MassTransit.Extensions.Hosting.AzureServiceBus`
 
 ## Problem Statement
 The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
@@ -53,15 +54,14 @@ This library uses the new [Generic Host] pattern from ASP.NET Core as the _glue_
 ## Usage
 
 ### Step 1) Add NuGet Package(s)
-> PM> Install-Package MassTransit.Extensions.Hosting
-> 
-> Then choose a transport...
-> 
+Choose one (or multiple) of the following transports:
 > PM> Install-Package MassTransit.Extensions.Hosting.RabbitMq
 > 
 > PM> Install-Package MassTransit.Extensions.Hosting.ActiveMq
 > 
 > PM> Install-Package MassTransit.Extensions.Hosting.AmazonSqs
+> 
+> PM> Install-Package MassTransit.Extensions.Hosting.AzureServiceBus
 
 ### Step 2) Add MassTransit Services
 ```csharp
@@ -113,6 +113,18 @@ public void ConfigureServices(IServiceCollection services)
             hostBuilder.UseCredentials(new EnvironmentVariablesAWSCredentials());
 
             // ...
+        });
+
+        busBuilder.UseAzureServiceBus("connection-name-5", new Uri("sb://namespace.servicebus.windows.net/scope"), hostBuilder =>
+        {
+            hostBuilder.UseServiceScope();
+
+            hostBuilder.UseTokenProvider(TokenProvider.CreateSimpleWebTokenProvider("token-test"));
+
+            hostBuilder.AddConfigurator(configureBus =>
+            {
+                configureBus.SelectBasicTier();
+            });
         });
 
     });
@@ -387,6 +399,7 @@ public static class Program
 * v1.0.6 - Updated documentation
 * v1.0.7 - Added ActiveMQ transport
 * v1.0.8 - Added AmazonSQS transport
+* v1.0.9 - Added AzureServiceBus transport
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].
