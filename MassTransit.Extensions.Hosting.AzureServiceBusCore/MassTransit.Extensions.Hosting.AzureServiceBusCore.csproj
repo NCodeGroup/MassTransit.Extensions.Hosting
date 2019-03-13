@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <RootNamespace>MassTransit.Extensions.Hosting.AzureServiceBus</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NCode.ProjectSettings.Scaffold" Version="1.0.8">
+            <PrivateAssets>All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="5.1.5" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MassTransit.Extensions.Hosting\MassTransit.Extensions.Hosting.csproj" />
+    </ItemGroup>
+
+</Project>
