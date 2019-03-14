@@ -74,6 +74,61 @@ namespace MassTransit.Extensions.Hosting
         }
 
         /// <summary>
+        /// Connects an observer to the bus, to observe creation, start, stop, fault events.
+        /// </summary>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        /// <param name="observer"><see cref="IBusObserver"/></param>
+        public static void ConnectBusObserver<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder, IBusObserver observer)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                busFactory.BusObserver(observer);
+            });
+        }
+
+        /// <summary>
+        /// Connects an observer(s) to the bus, to observe creation, start,
+        /// stop, fault events. The observer is resolved from the Dependency
+        /// Injection container. If multiple registrations are found, then all
+        /// are used.
+        /// </summary>
+        /// <typeparam name="THost">The type of <see cref="IHost"/>.</typeparam>
+        /// <typeparam name="TBusFactory">The type of <see cref="IBusFactoryConfigurator"/>.</typeparam>
+        /// <typeparam name="TBusObserver">The type of <see cref="IBusObserver"/>.</typeparam>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        public static void ConnectBusObservers<THost, TBusFactory, TBusObserver>(this IBusHostBuilder<THost, TBusFactory> builder)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+            where TBusObserver : class, IBusObserver
+        {
+            builder.AddConfigurator((host, busFactory, serviceProvider) =>
+            {
+                var busObservers = serviceProvider.GetServices<TBusObserver>();
+                foreach (var busObserver in busObservers)
+                {
+                    busFactory.BusObserver(busObserver);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Connects multiple observers to the bus, to observe creation, start,
+        /// stop, fault events. The observers are resolved from the Dependency
+        /// Injection container
+        /// </summary>
+        /// <typeparam name="THost">The type of <see cref="IHost"/>.</typeparam>
+        /// <typeparam name="TBusFactory">The type of <see cref="IBusFactoryConfigurator"/>.</typeparam>
+        /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
+        public static void ConnectBusObservers<THost, TBusFactory>(this IBusHostBuilder<THost, TBusFactory> builder)
+            where THost : class, IHost
+            where TBusFactory : class, IBusFactoryConfigurator
+        {
+            ConnectBusObservers<THost, TBusFactory, IBusObserver>(builder);
+        }
+
+        /// <summary>
         /// Assigns <see cref="P:Trace.CorrelationManager.ActivityId"/> from the CorrelationId on the <see cref="ConsumeContext"/>.
         /// </summary>
         /// <param name="builder"><see cref="IBusHostBuilder{THost,TBusFactory}"/></param>
