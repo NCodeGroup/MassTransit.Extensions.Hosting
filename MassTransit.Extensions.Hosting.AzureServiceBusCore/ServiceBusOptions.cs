@@ -21,7 +21,7 @@ using System;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Primitives;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     /// <summary>
     /// Contains the options for configuring an AzureServiceBus host.

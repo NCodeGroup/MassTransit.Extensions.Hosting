@@ -79,6 +79,13 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         IServiceBusHostBuilder UseAmqp(AmqpTransportSettings settings);
 
         /// <summary>
+        /// Sets the type of messaging protocol to use.
+        /// </summary>
+        /// <param name="value">The new value.</param>
+        /// <returns><see cref="IServiceBusHostBuilder"/></returns>
+        IServiceBusHostBuilder UseTransport(TransportType value);
+
+        /// <summary>
         /// Sets the messaging protocol to use net messaging with the specified transport settings.
         /// </summary>
         /// <param name="settings"><see cref="AmqpTransportSettings"/></param>
@@ -216,6 +223,13 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         public virtual IServiceBusHostBuilder UseRetryLimit(int value)
         {
             _hostConfiguratorActions.Add(configure => configure.RetryLimit = value);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public virtual IServiceBusHostBuilder UseTransport(TransportType value)
+        {
+            _hostConfiguratorActions.Add(configure => configure.TransportType = value);
             return this;
         }
 

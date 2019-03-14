@@ -2,7 +2,7 @@
 <Project>
   <PropertyGroup>
 
-    <Description>MassTransit AzureServiceBus configuration extensions using Microsoft.Extensions.Hosting.IHostedService and Microsoft.Extensions.DependencyInjection.</Description>
+    <Description>MassTransit AzureServiceBusCore configuration extensions using Microsoft.Extensions.Hosting.IHostedService and Microsoft.Extensions.DependencyInjection.</Description>
     <PackageTags>Azure;ServiceBus;AzureServiceBus;MassTransit;IHostedService;Bus;Hosting</PackageTags>
 
   </PropertyGroup>

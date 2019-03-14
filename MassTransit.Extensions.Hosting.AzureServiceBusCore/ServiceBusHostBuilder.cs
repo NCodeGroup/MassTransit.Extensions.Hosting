@@ -28,7 +28,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     /// <summary>
     /// Provides an abstraction to configure and initialize AzureServiceBus instances.

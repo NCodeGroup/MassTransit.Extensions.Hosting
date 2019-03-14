@@ -21,7 +21,7 @@ using System;
 using MassTransit.Azure.ServiceBus.Core.Contexts;
 using Microsoft.Extensions.Configuration;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     /// <summary>
     /// Provides extension methods for <see cref="IMassTransitBuilder"/> to configure AzureServiceBus instances.

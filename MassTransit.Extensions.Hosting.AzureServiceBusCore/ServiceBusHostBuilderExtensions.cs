@@ -19,7 +19,7 @@
 
 using System;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     /// <summary>
     /// Provides extension methods for <see cref="IServiceBusHostBuilder"/>.

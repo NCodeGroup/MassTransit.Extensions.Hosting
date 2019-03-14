@@ -1,5 +1,4 @@
 #region Copyright Preamble
-
 // 
 //    Copyright @ 2019 NCode Group
 // 
@@ -14,24 +13,19 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-
 #endregion
 
-using System;
-using MassTransit.Azure.ServiceBus.Core;
+using System.Collections.Generic;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore.Tests
 {
-    /// <summary>
-    /// Provides an implementation of <see cref="IBusFactory{TConfigurator}"/>
-    /// that creates AzureServiceBus instances using <see cref="IServiceBusBusFactoryConfigurator"/>.
-    /// </summary>
-    public class ServiceBusBusFactory : IBusFactory<IServiceBusBusFactoryConfigurator>
+    /// <summary />
+    public static class KeyValuePairFactory
     {
-        /// <inheritdoc />
-        public virtual IBusControl Create(Action<IServiceBusBusFactoryConfigurator> configure)
+        /// <summary />
+        public static KeyValuePair<TKey, TValue> Create<TKey, TValue>(TKey key, TValue value)
         {
-            return Bus.Factory.CreateUsingAzureServiceBus(configure);
+            return new KeyValuePair<TKey, TValue>(key, value);
         }
 
     }

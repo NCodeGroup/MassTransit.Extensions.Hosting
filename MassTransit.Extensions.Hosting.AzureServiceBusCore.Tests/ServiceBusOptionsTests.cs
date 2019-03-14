@@ -17,21 +17,27 @@
 
 #endregion
 
-using System;
-using MassTransit.Azure.ServiceBus.Core;
+using Xunit;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore.Tests
 {
-    /// <summary>
-    /// Provides an implementation of <see cref="IBusFactory{TConfigurator}"/>
-    /// that creates AzureServiceBus instances using <see cref="IServiceBusBusFactoryConfigurator"/>.
-    /// </summary>
-    public class ServiceBusBusFactory : IBusFactory<IServiceBusBusFactoryConfigurator>
+    /// <summary />
+    public class ServiceBusOptionsTests
     {
-        /// <inheritdoc />
-        public virtual IBusControl Create(Action<IServiceBusBusFactoryConfigurator> configure)
+        /// <summary />
+        [Fact]
+        public void DefaultCtor_IsValid()
         {
-            return Bus.Factory.CreateUsingAzureServiceBus(configure);
+            var options = new ServiceBusOptions();
+
+            Assert.Equal(string.Empty, options.ConnectionName);
+            Assert.Null(options.HostAddress);
+            Assert.Null(options.TokenProvider);
+            Assert.Null(options.OperationTimeout);
+            Assert.Null(options.RetryMinBackoff);
+            Assert.Null(options.RetryMaxBackoff);
+            Assert.Null(options.RetryLimit);
+            Assert.Null(options.TransportType);
         }
 
     }

@@ -131,7 +131,8 @@ namespace Example.ConsoleHost
                     });
                 });
 
-                // AzureServiceBus
+                // AzureServiceBus or
+                // AzureServiceBusCore
                 busBuilder.UseAzureServiceBus(configuration.GetSection("MassTransit:AzureServiceBus"), hostBuilder =>
                 {
                     hostBuilder.UseServiceScope();

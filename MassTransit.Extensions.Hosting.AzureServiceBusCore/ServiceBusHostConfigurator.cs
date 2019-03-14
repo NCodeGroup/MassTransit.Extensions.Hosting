@@ -20,7 +20,7 @@ using MassTransit.Azure.ServiceBus.Core;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Primitives;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     internal class ServiceBusHostConfigurator : IServiceBusHostConfigurator, ServiceBusHostSettings
     {

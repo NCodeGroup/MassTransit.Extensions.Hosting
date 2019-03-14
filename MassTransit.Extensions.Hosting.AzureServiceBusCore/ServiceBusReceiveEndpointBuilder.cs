@@ -20,7 +20,7 @@
 using MassTransit.Azure.ServiceBus.Core;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     /// <summary>
     /// Provides an abstraction to configure and initialize AzureServiceBus specific receiving endpoints.
