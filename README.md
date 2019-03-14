@@ -26,6 +26,7 @@ Transport specific libraries:
 * `MassTransit.Extensions.Hosting.AmazonSqs`
 * `MassTransit.Extensions.Hosting.AzureServiceBus`
 * `MassTransit.Extensions.Hosting.AzureServiceBusCore`
+* `MassTransit.Extensions.Hosting.Http`
 
 ## Problem Statement
 The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
@@ -65,6 +66,8 @@ Choose one (or multiple) of the following transports:
 > PM> Install-Package MassTransit.Extensions.Hosting.AzureServiceBus
 > 
 > PM> Install-Package MassTransit.Extensions.Hosting.AzureServiceBusCore
+> 
+> PM> Install-Package MassTransit.Extensions.Hosting.Http
 
 ### Step 2) Add MassTransit Services
 ```csharp
@@ -127,6 +130,16 @@ public void ConfigureServices(IServiceCollection services)
             hostBuilder.AddConfigurator(configureBus =>
             {
                 configureBus.SelectBasicTier();
+            });
+        });
+
+        busBuilder.UseHttp("connection-name-6", new Uri("http://127.0.0.1:8080"), hostBuilder =>
+        {
+            hostBuilder.UseServiceScope();
+            hostBuilder.UseMethod(HttpMethod.Post);
+            hostBuilder.AddReceiveEndpoint("example-queue-6", endpointBuilder =>
+            {
+                endpointBuilder.AddConsumer<ExampleConsumer>();
             });
         });
 
@@ -404,6 +417,7 @@ public static class Program
 * v1.0.8 - Added AmazonSQS transport
 * v1.0.9 - Added AzureServiceBus transport
 * v1.0.10 - Added AzureServiceBusCore transport
+* v1.0.11 - Added HTTP transport
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].

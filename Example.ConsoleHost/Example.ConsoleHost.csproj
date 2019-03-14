@@ -31,6 +31,7 @@
         <ProjectReference Include="..\MassTransit.Extensions.Hosting.ActiveMq\MassTransit.Extensions.Hosting.ActiveMq.csproj" />
         <ProjectReference Include="..\MassTransit.Extensions.Hosting.AmazonSqs\MassTransit.Extensions.Hosting.AmazonSqs.csproj" />
         <ProjectReference Include="..\MassTransit.Extensions.Hosting.AzureServiceBus\MassTransit.Extensions.Hosting.AzureServiceBus.csproj" />
+        <ProjectReference Include="..\MassTransit.Extensions.Hosting.Http\MassTransit.Extensions.Hosting.Http.csproj" />
         <ProjectReference Include="..\MassTransit.Extensions.Hosting.RabbitMq\MassTransit.Extensions.Hosting.RabbitMq.csproj" />
         <ProjectReference Include="..\MassTransit.Extensions.Hosting\MassTransit.Extensions.Hosting.csproj" />
     </ItemGroup>

@@ -17,11 +17,13 @@
 
 #endregion
 
+using System.Net.Http;
 using GreenPipes;
 using MassTransit.Extensions.Hosting;
 using MassTransit.Extensions.Hosting.ActiveMq;
 using MassTransit.Extensions.Hosting.AmazonSqs;
 using MassTransit.Extensions.Hosting.AzureServiceBus;
+using MassTransit.Extensions.Hosting.Http;
 using MassTransit.Extensions.Hosting.RabbitMq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -145,6 +147,17 @@ namespace Example.ConsoleHost
                     });
 
                     hostBuilder.AddReceiveEndpoint("example-queue-5", endpointBuilder =>
+                    {
+                        endpointBuilder.AddConsumer<ExampleConsumer>();
+                    });
+                });
+
+                // HTTP
+                busBuilder.UseHttp(configuration.GetSection("MassTransit:Http"), hostBuilder =>
+                {
+                    hostBuilder.UseServiceScope();
+                    hostBuilder.UseMethod(HttpMethod.Post);
+                    hostBuilder.AddReceiveEndpoint("example-queue-6", endpointBuilder =>
                     {
                         endpointBuilder.AddConsumer<ExampleConsumer>();
                     });

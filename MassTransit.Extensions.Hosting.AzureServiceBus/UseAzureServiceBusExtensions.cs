@@ -35,7 +35,7 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         /// <param name="builder"><see cref="IMassTransitBuilder"/></param>
         /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="hostAddress">The address of the service bus namespace and accompanying service scope in MassTransit format (sb://namespace.servicebus.windows.net/scope).</param>
-        /// <param name="hostConfigurator">The configuration callback to configure the ActiveMQ bus.</param>
+        /// <param name="hostConfigurator">The configuration callback to configure the AzureServiceBus.</param>
         public static void UseAzureServiceBus(this IMassTransitBuilder builder, string connectionName, Uri hostAddress, Action<IServiceBusHostBuilder> hostConfigurator = null)
         {
             if (builder == null)
@@ -53,7 +53,7 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         /// <param name="builder"><see cref="IMassTransitBuilder"/></param>
         /// <param name="connectionName">The client-provided connection name.</param>
         /// <param name="connectionString">The connection string in the proper format</param>
-        /// <param name="hostConfigurator">The configuration callback to configure the ActiveMQ bus.</param>
+        /// <param name="hostConfigurator">The configuration callback to configure the AzureServiceBus.</param>
         public static void UseAzureServiceBus(this IMassTransitBuilder builder, string connectionName, string connectionString, Action<IServiceBusHostBuilder> hostConfigurator = null)
         {
             if (builder == null)
@@ -82,7 +82,7 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         /// </summary>
         /// <param name="builder"><see cref="IMassTransitBuilder"/></param>.
         /// <param name="options"><see cref="ServiceBusOptions"/></param>
-        /// <param name="hostConfigurator">The configuration callback to configure the ActiveMQ bus.</param>
+        /// <param name="hostConfigurator">The configuration callback to configure the AzureServiceBus.</param>
         public static void UseAzureServiceBus(this IMassTransitBuilder builder, ServiceBusOptions options, Action<IServiceBusHostBuilder> hostConfigurator = null)
         {
             if (options == null)
@@ -127,7 +127,7 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         /// </summary>
         /// <param name="builder"><see cref="IMassTransitBuilder"/></param>.
         /// <param name="configuration">The <see cref="IConfiguration"/> being bound.</param>
-        /// <param name="hostConfigurator">The configuration callback to configure the ActiveMQ bus.</param>
+        /// <param name="hostConfigurator">The configuration callback to configure the AzureServiceBus.</param>
         public static void UseAzureServiceBus(this IMassTransitBuilder builder, IConfiguration configuration, Action<IServiceBusHostBuilder> hostConfigurator = null)
         {
             if (configuration == null)
