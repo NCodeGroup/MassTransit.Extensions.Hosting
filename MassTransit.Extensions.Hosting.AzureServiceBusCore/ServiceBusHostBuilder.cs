@@ -19,17 +19,16 @@
 
 using System;
 using System.Collections.Generic;
-using MassTransit.AzureServiceBusTransport;
+using MassTransit.Azure.ServiceBus.Core;
+using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Primitives;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
-using Microsoft.ServiceBus.Messaging.Amqp;
 
-namespace MassTransit.Extensions.Hosting.AzureServiceBus
+namespace MassTransit.Extensions.Hosting.AzureServiceBusCore
 {
     /// <summary>
     /// Provides an abstraction to configure and initialize AzureServiceBus instances.
@@ -41,7 +40,7 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         /// </summary>
         /// <param name="value">The new value.</param>
         /// <returns><see cref="IServiceBusHostBuilder"/></returns>
-        IServiceBusHostBuilder UseTokenProvider(TokenProvider value);
+        IServiceBusHostBuilder UseTokenProvider(ITokenProvider value);
 
         /// <summary>
         /// Sets the operation timeout for the messaging factory.
@@ -72,32 +71,11 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         IServiceBusHostBuilder UseRetryLimit(int value);
 
         /// <summary>
-        /// Sets the messaging protocol to use AMQP with the specified transport settings.
-        /// </summary>
-        /// <param name="settings"><see cref="AmqpTransportSettings"/></param>
-        /// <returns><see cref="IServiceBusHostBuilder"/></returns>
-        IServiceBusHostBuilder UseAmqp(AmqpTransportSettings settings);
-
-        /// <summary>
         /// Sets the type of messaging protocol to use.
         /// </summary>
         /// <param name="value">The new value.</param>
         /// <returns><see cref="IServiceBusHostBuilder"/></returns>
         IServiceBusHostBuilder UseTransport(TransportType value);
-
-        /// <summary>
-        /// Sets the messaging protocol to use net messaging with the specified transport settings.
-        /// </summary>
-        /// <param name="settings"><see cref="AmqpTransportSettings"/></param>
-        /// <returns><see cref="IServiceBusHostBuilder"/></returns>
-        IServiceBusHostBuilder UseNetMessaging(NetMessagingTransportSettings settings);
-
-        /// <summary>
-        /// Sets the the batch flush interval to use with the messaging factory.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns><see cref="IServiceBusHostBuilder"/></returns>
-        IServiceBusHostBuilder UseBatchFlushInterval(TimeSpan value);
     }
 
     /// <summary>
@@ -168,31 +146,15 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
                 if (options.RetryLimit.HasValue)
                     hostConfigurator.RetryLimit = options.RetryLimit.Value;
 
-                switch (options.TransportType)
-                {
-                    case TransportType.Amqp:
-                        hostConfigurator.TransportType = TransportType.Amqp;
-                        hostConfigurator.AmqpTransportSettings = options.AmqpTransportSettings;
-                        break;
-
-                    case TransportType.NetMessaging:
-                        hostConfigurator.TransportType = TransportType.NetMessaging;
-                        hostConfigurator.NetMessagingTransportSettings = options.NetMessagingTransportSettings;
-                        break;
-                }
-
-                if (options.BatchFlushInterval.HasValue)
-                    hostConfigurator.BatchFlushInterval = options.BatchFlushInterval.Value;
-
-                hostConfigurator.AmqpTransportSettings.BatchFlushInterval = hostConfigurator.BatchFlushInterval;
-                hostConfigurator.NetMessagingTransportSettings.BatchFlushInterval = hostConfigurator.BatchFlushInterval;
+                if (options.TransportType.HasValue)
+                    hostConfigurator.TransportType = options.TransportType.Value;
 
                 return hostConfigurator;
             };
         }
 
         /// <inheritdoc />
-        public virtual IServiceBusHostBuilder UseTokenProvider(TokenProvider value)
+        public virtual IServiceBusHostBuilder UseTokenProvider(ITokenProvider value)
         {
             _hostConfiguratorActions.Add(configure => configure.TokenProvider = value);
             return this;
@@ -230,41 +192,6 @@ namespace MassTransit.Extensions.Hosting.AzureServiceBus
         public virtual IServiceBusHostBuilder UseTransport(TransportType value)
         {
             _hostConfiguratorActions.Add(configure => configure.TransportType = value);
-            return this;
-        }
-
-        /// <inheritdoc />
-        public virtual IServiceBusHostBuilder UseAmqp(AmqpTransportSettings settings)
-        {
-            _hostConfiguratorActions.Add(configure =>
-            {
-                configure.TransportType = TransportType.Amqp;
-                configure.AmqpTransportSettings = settings;
-                configure.NetMessagingTransportSettings = null;
-            });
-            return this;
-        }
-
-        /// <inheritdoc />
-        public virtual IServiceBusHostBuilder UseNetMessaging(NetMessagingTransportSettings settings)
-        {
-            _hostConfiguratorActions.Add(configure =>
-            {
-                configure.TransportType = TransportType.NetMessaging;
-                configure.NetMessagingTransportSettings = settings;
-                configure.AmqpTransportSettings = null;
-            });
-            return this;
-        }
-
-        /// <inheritdoc />
-        public virtual IServiceBusHostBuilder UseBatchFlushInterval(TimeSpan value)
-        {
-            _hostConfiguratorActions.Add(configure =>
-            {
-                configure.AmqpTransportSettings.BatchFlushInterval = value;
-                configure.NetMessagingTransportSettings.BatchFlushInterval = value;
-            });
             return this;
         }
 

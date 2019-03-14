@@ -25,6 +25,7 @@ Transport specific libraries:
 * `MassTransit.Extensions.Hosting.ActiveMq`
 * `MassTransit.Extensions.Hosting.AmazonSqs`
 * `MassTransit.Extensions.Hosting.AzureServiceBus`
+* `MassTransit.Extensions.Hosting.AzureServiceBusCore`
 
 ## Problem Statement
 The core MassTransit library only provides abstractions and no implementation unless the [MassTransit.Host] package is used. Unfortunatly the `MassTransit.Host` package makes many assumptions and forces the developer with many potentially unwanted conventions such as:
@@ -62,6 +63,8 @@ Choose one (or multiple) of the following transports:
 > PM> Install-Package MassTransit.Extensions.Hosting.AmazonSqs
 > 
 > PM> Install-Package MassTransit.Extensions.Hosting.AzureServiceBus
+> 
+> PM> Install-Package MassTransit.Extensions.Hosting.AzureServiceBusCore
 
 ### Step 2) Add MassTransit Services
 ```csharp
@@ -400,6 +403,7 @@ public static class Program
 * v1.0.7 - Added ActiveMQ transport
 * v1.0.8 - Added AmazonSQS transport
 * v1.0.9 - Added AzureServiceBus transport
+* v1.0.10 - Added AzureServiceBusCore transport
 
 ## Feedback
 Please provide any feedback, comments, or issues to this GitHub project [here][issues].
