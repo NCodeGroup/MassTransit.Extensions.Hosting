@@ -1,3 +1,13 @@
+# Deprecated
+
+> **This library is retired.** MassTransit now supports what it added itself.
+>
+> - MassTransit's own `AddMassTransit(...)` registers the bus and its consumers with `Microsoft.Extensions.DependencyInjection` and runs the bus as a hosted service with `Microsoft.Extensions.Hosting`, so a separate hosting package is no longer needed. See the [MassTransit documentation](https://masstransit.io/).
+>
+> It targets the MassTransit 5 era and has not changed since 2019.
+>
+> The NuGet package is deprecated (`MassTransit.Extensions.Hosting`) and this repository is archived. The code stays available as it is.
+
 [MassTransit]: http://masstransit-project.com/
 [Microsoft.Extensions.Hosting]: https://github.com/aspnet/Hosting
 [Microsoft.Extensions.DependencyInjection]: https://github.com/aspnet/DependencyInjection
